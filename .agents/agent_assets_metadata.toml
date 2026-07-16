@@ -1,0 +1,121 @@
+uploads = []
+
+[[generated]]
+id = "KxeTI8UDjDK5Ipt5iE-e4"
+uri = "file://public/icon-512.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "pm3kZM4Bvd7wdJPls43Lm"
+uri = "file://public/icon-192.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "eyTleERf_rpX-xRUdZbL9"
+uri = "file://public/ads/bg1_deals.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "O05aL5auYY_uT2p1NPYuF"
+uri = "file://public/ads/bg2_lifestyle.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "WsIga-aleFhIrwHBdHPYq"
+uri = "file://public/ads/bg3_explosion.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "mD-OeFaKpFL2_0-Q1HT9B"
+uri = "file://attached_assets/generated_images/vibrant_yellow_flat_lay_0f57.png"
+type = "image"
+title = "generated_image"
+
+[[outputs]]
+id = "G2_6Xy36iWlLvTDbY98iB"
+uri = "file://public/ads/ad1_deals.png"
+type = "image"
+title = "إعلان 1 — تخفيضات 70%"
+
+[[outputs]]
+id = "9RjMaPXRR57y4Wmvjl2Qd"
+uri = "file://public/ads/ad2_lifestyle.png"
+type = "image"
+title = "إعلان 2 — أفضل العروض كل يوم"
+
+[[outputs]]
+id = "cpYhb6I6N9kV9H5MUbmeU"
+uri = "file://public/ads/ad3_explosion.png"
+type = "image"
+title = "إعلان 3 — كوبونات حصرية"
+
+[[outputs]]
+id = "FpJCSWDOSHafTSTMKdpF-"
+uri = "file://public/ads/ad1_deals_16x9.png"
+type = "image"
+title = "إعلان 1 — تخفيضات (16:9)"
+
+[[outputs]]
+id = "gt5AJ3MnVK9vQ55ycW7ob"
+uri = "file://public/ads/ad2_lifestyle_16x9.png"
+type = "image"
+title = "إعلان 2 — لايف ستايل (16:9)"
+
+[[outputs]]
+id = "LOusHrHrZs3AKdZmDi5S6"
+uri = "file://public/ads/ad3_explosion_16x9.png"
+type = "image"
+title = "إعلان 3 — انفجار العروض (16:9)"
+
+[[outputs]]
+id = "WSX28c6S6n8mwnhOgPy3H"
+uri = "file://public/ads/ad4_deals_16x9.png"
+type = "image"
+title = "إعلان جديد — خلفية صفراء (16:9)"
+
+[[outputs]]
+id = "VRVHJcmtPpGPCMIMvtI0-"
+uri = "file://public/ads/ad5_persuasive_16x9.png"
+type = "image"
+title = "إعلان إقناعي (16:9) - خصم 70% + مقارنة أسعار"
+
+[[outputs]]
+id = "aAKL-JN9E64bSfCAWAIq4"
+uri = "file://public/ads/ad6_secret_16x9.png"
+type = "image"
+title = "إعلان السر (16:9) - AliExpress بنصف السعر"
+
+[[outputs]]
+id = "34_1wltL14rFshls02HzP"
+uri = "file://public/frame-options/preview_premium.jpg"
+type = "image"
+title = "1) Premium Gold — أنيق وفخم"
+
+[[outputs]]
+id = "s5wk3QOqTge4HDWI_l1nQ"
+uri = "file://public/frame-options/preview_minimal.jpg"
+type = "image"
+title = "2) Minimal Clean — بسيط ومتناسق"
+
+[[outputs]]
+id = "bzVxqQbo5SdA3MWOZObbR"
+uri = "file://public/frame-options/preview_bold.jpg"
+type = "image"
+title = "3) Bold Sale — جذّاب مع شارات تخفيض"
+
+[[outputs]]
+id = "otLT-9xiMmrANE880OQxL"
+uri = "file://public/preview_yellow.jpg"
+type = "image"
+title = "معاينة الإطار"
+
+[[outputs]]
+id = "CfZlHJz6r4m9h5vXKxVbP"
+uri = "file://public/custom_frame.jpg"
+type = "image"
+title = "الإطار الفارغ الجاهز"
