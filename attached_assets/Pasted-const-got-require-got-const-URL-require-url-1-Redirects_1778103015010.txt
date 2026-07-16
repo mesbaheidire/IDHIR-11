@@ -1,0 +1,87 @@
+const got = require("got");
+const { URL } = require("url");
+
+// 1. تتبع الروابط المحوّلة (Redirects) للوصول للرابط النهائي
+async function getFinalRedirect(url) {
+    try {
+        const response = await got(url, {
+            followRedirect: false,
+            https: { rejectUnauthorized: false }
+        });
+        if (response.headers.location) {
+            return response.headers.location;
+        }
+        return url;
+    } catch (err) {
+        console.error("❌ Redirect error:", err.message);
+        return url;
+    }
+}
+
+// 2. استخراج Product ID من الرابط
+function extractProductId(url) {
+    try {
+        const u = new URL(url);
+
+        if (u.searchParams.has("productIds")) {
+            return u.searchParams.get("productIds");
+        }
+
+        if (u.searchParams.has("redirectUrl")) {
+            const decoded = decodeURIComponent(u.searchParams.get("redirectUrl"));
+            const m = decoded.match(/item\/(\d+)\.html/);
+            if (m) return m[1];
+        }
+
+        const m = u.pathname.match(/item\/(\d+)\.html/);
+        if (m) return m[1];
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+// 3. تحويل أي رابط (مختصر أو كامل) إلى Product ID
+async function idCatcher(input) {
+    if (!input || typeof input !== "string") return null;
+
+    if (/^\d+$/.test(input)) {
+        return { id: input };
+    }
+
+    if (!input.startsWith("http")) {
+        input = "https://" + input;
+    }
+
+    let finalUrl = await getFinalRedirect(input);
+    finalUrl = await getFinalRedirect(finalUrl);
+
+    const id = extractProductId(finalUrl);
+
+    return { id, finalUrl };
+}
+
+// 4. ⭐ الدالة الرئيسية لاستخراج الصورة + العنوان من رابط AliExpress
+async function fetchLinkPreview(productId) {
+    try {
+        const url = "https://linkpreview.xyz/api/get-meta-tags";
+
+        const res = await got(url, {
+            searchParams: {
+                url: `https://vi.aliexpress.com/item/${productId}.html`
+            },
+            responseType: "json"
+        });
+
+        return {
+            title: res.body.title || "",
+            image_url: res.body.image || null
+        };
+    } catch (err) {
+        console.error("❌ Preview error:", err.message);
+        return null;
+    }
+}
+
+module.exports = { getFinalRedirect, extractProductId, idCatcher, fetchLinkPreview };
