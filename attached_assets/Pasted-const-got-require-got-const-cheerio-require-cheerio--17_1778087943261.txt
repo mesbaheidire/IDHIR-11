@@ -1,0 +1,69 @@
+const got = require("got");
+const cheerio = require("cheerio");
+
+/**
+ * دالة مخصصة لاستخراج صورة المنتج من AliExpress
+ * @param {string} productId - معرف المنتج (مثال: 10050012345678)
+ */
+async function getProductImage(productId) {
+    const productUrl = `https://www.aliexpress.com/item/${productId}.html`;
+    
+    try {
+        console.log(`🔍 جاري استخراج الصورة للمنتج: ${productId}...`);
+
+        // 1. محاولة جلب الصفحة مع User-Agent لتبدو كأنها متصفح حقيقي
+        const response = await got(productUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7'
+            },
+            timeout: { request: 10000 }
+        });
+
+        const $ = cheerio.load(response.body);
+
+        // 2. البحث عن الصورة في عدة أماكن (بترتيب الأولوية)
+        let imageUrl = 
+            $('meta[property="og:image"]').attr('content') ||          // وسم المعاينة الرسمي
+            $('meta[name="twitter:image"]').attr('content') ||         // وسم تويتر
+            $('.gallery-panel__preview-image').attr('src') ||          // الصورة الرئيسية في المعرض
+            $('.magnifier-image').attr('src') ||                       // صورة التكبير
+            $('img.specZoom').attr('src');                             // الصور التقنية
+
+        // 3. تنظيف الرابط (AliExpress أحياناً يرسل الروابط تبدأ بـ // بدون https)
+        if (imageUrl && imageUrl.startsWith('//')) {
+            imageUrl = 'https:' + imageUrl;
+        }
+
+        if (imageUrl) {
+            console.log("✅ تم العثور على الصورة:", imageUrl);
+            return imageUrl;
+        } else {
+            throw new Error("لم يتم العثور على وسوم الصور في الصفحة");
+        }
+
+    } catch (error) {
+        console.error("❌ فشل استخراج الصورة:", error.message);
+        
+        // محاولة أخيرة باستخدام Regex إذا فشل Cheerio
+        const html = error.response?.body || "";
+        const fallbackMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i);
+        
+        if (fallbackMatch && fallbackMatch[1]) {
+            let fbImg = fallbackMatch[1];
+            return fbImg.startsWith('//') ? 'https:' + fbImg : fbImg;
+        }
+
+        return null;
+    }
+}
+
+// --- مثال على طريقة التشغيل ---
+const testID = "1005006061324733"; // ضع هنا ID أي منتج لتجربته
+getProductImage(testID).then(url => {
+    if (url) {
+        console.log("الرابط النهائي للصورة جاهز للاستخدام:", url);
+    } else {
+        console.log("للأسف تعذر جلب الصورة.");
+    }
+});
