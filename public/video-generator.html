@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="theme-color" content="#0a0a14">
+    <title>مولّد فيديوهات TikTok/Reels تلقائي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/modern-theme.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; margin: 0; background: var(--bg-primary); color: #fff; }
+
+        .header {
+            background: linear-gradient(135deg, #FF7043 0%, #F4511E 50%, #E64A19 100%);
+            padding: 55px 20px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: ''; position: absolute; bottom: -60%; left: -10%; right: -10%;
+            height: 80%; background: var(--bg-primary); border-radius: 50% 50% 0 0;
+        }
+        .header > * { position: relative; z-index: 2; }
+        .header h1 { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+        .header p { opacity: 0.85; font-size: 12px; margin: 0; }
+        .back-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; width: 38px; height: 38px;
+            color: #fff; font-size: 16px; cursor: pointer; text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); z-index: 3;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+        .content { padding: 0 15px 30px; max-width: 600px; margin: 0 auto; }
+
+        .card {
+            background: var(--bg-card, #14141f);
+            border: 1px solid var(--border-subtle, rgba(255,255,255,0.06));
+            border-radius: 18px; padding: 18px; margin: 15px 0;
+        }
+        .card-title {
+            font-size: 15px; font-weight: 700; margin: 0 0 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card-title i { color: #FF7043; }
+
+        .input-row { display: flex; gap: 8px; }
+        .m-input, .input-row input {
+            flex: 1; width: 100%; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08); color: #fff;
+            border-radius: 12px; padding: 12px 14px; font-size: 14px;
+            font-family: inherit; outline: none;
+            transition: border-color 0.15s;
+        }
+        .m-input:focus, .input-row input:focus { border-color: #FF7043; }
+
+        .btn {
+            background: linear-gradient(135deg, #FF7043, #E64A19);
+            color: #fff; border: none; padding: 12px 18px;
+            border-radius: 12px; font-size: 14px; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            transition: transform 0.1s, opacity 0.15s;
+        }
+        .btn:hover:not(:disabled) { transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-success { background: linear-gradient(135deg, #4CAF50, #388E3C); }
+        .btn-block { width: 100%; padding: 14px; font-size: 15px; }
+
+        .templates-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .template-card {
+            background: rgba(255,255,255,0.04); border: 2px solid transparent;
+            border-radius: 14px; padding: 12px 8px; cursor: pointer;
+            text-align: center; transition: all 0.15s;
+        }
+        .template-card:hover { background: rgba(255,255,255,0.07); }
+        .template-card.active {
+            border-color: #FF7043;
+            background: rgba(255,112,67,0.1);
+        }
+        .template-thumb {
+            width: 100%; aspect-ratio: 9/16; border-radius: 10px;
+            margin-bottom: 8px; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 28px; font-weight: 800;
+        }
+        .template-name { font-size: 11px; font-weight: 700; }
+
+        .options-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+        }
+        .option-btn {
+            background: rgba(255,255,255,0.04); border: 2px solid transparent;
+            border-radius: 10px; padding: 10px 6px; text-align: center;
+            cursor: pointer; transition: all 0.15s;
+            color: #fff; font-size: 13px; font-weight: 700;
+        }
+        .option-btn:hover { background: rgba(255,255,255,0.07); }
+        .option-btn.active {
+            border-color: #FF7043;
+            background: rgba(255,112,67,0.1);
+        }
+
+        .product-preview {
+            display: none; gap: 12px; padding: 12px;
+            background: rgba(255,255,255,0.03); border-radius: 14px;
+            margin-top: 10px;
+        }
+        .product-preview.show { display: flex; }
+        .product-preview img {
+            width: 80px; height: 80px; object-fit: cover; border-radius: 10px;
+            background: #222;
+        }
+        .product-info { flex: 1; min-width: 0; }
+        .product-info h3 {
+            font-size: 13px; font-weight: 700; margin: 0 0 6px;
+            line-height: 1.4; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .product-info .price { color: #FF7043; font-weight: 800; font-size: 15px; }
+        .product-info .original { color: #888; text-decoration: line-through; font-size: 12px; margin-right: 6px; }
+
+        .canvas-stage {
+            display: flex; justify-content: center; align-items: center;
+            background: #000; border-radius: 18px; padding: 12px;
+            margin: 15px 0; position: relative; overflow: hidden;
+        }
+        #previewCanvas {
+            width: 100%; max-width: 270px;
+            aspect-ratio: 9/16;
+            background: #000; border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .recording-badge {
+            position: absolute; top: 22px; right: 22px;
+            background: #f44336; color: #fff;
+            padding: 5px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+            display: none; align-items: center; gap: 5px;
+            animation: pulse 1s infinite;
+        }
+        .recording-badge.show { display: inline-flex; }
+        .recording-badge::before {
+            content: ''; width: 8px; height: 8px;
+            background: #fff; border-radius: 50%;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .progress-bar {
+            display: none; height: 6px; background: rgba(255,255,255,0.08);
+            border-radius: 3px; overflow: hidden; margin: 10px 0;
+        }
+        .progress-bar.show { display: block; }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #FF7043, #E64A19);
+            width: 0%; transition: width 0.2s;
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            display: block; margin-bottom: 6px;
+            font-size: 12px; font-weight: 700; color: #ccc;
+        }
+
+        .audio-controls {
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+        }
+        .audio-controls input[type="file"] { display: none; }
+        .file-label {
+            background: rgba(255,255,255,0.06); padding: 10px 14px;
+            border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 8px;
+            border: 1px dashed rgba(255,255,255,0.15); flex: 1;
+        }
+        .file-label.has-file { border-style: solid; border-color: #4CAF50; }
+
+        .checkbox-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px; background: rgba(255,255,255,0.04);
+            border-radius: 10px; cursor: pointer;
+        }
+        .checkbox-row input { accent-color: #FF7043; width: 18px; height: 18px; }
+        .checkbox-row label { font-size: 13px; cursor: pointer; flex: 1; }
+
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #1a1a2e; color: #fff; padding: 12px 20px;
+            border-radius: 10px; font-size: 13px; opacity: 0;
+            pointer-events: none; transition: opacity 0.3s; z-index: 100;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toast.show { opacity: 1; }
+        .toast.success { border-color: #4CAF50; }
+        .toast.error { border-color: #f44336; }
+
+        .actions-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
+        }
+
+        .helper {
+            font-size: 11px; color: #888; margin-top: 6px; line-height: 1.5;
+        }
+
+        .browser-warning {
+            display: none;
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ff8a80; padding: 12px; border-radius: 10px;
+            font-size: 12px; margin: 10px 0;
+        }
+        .browser-warning.show { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+        <h1>🎬 مولّد فيديوهات TikTok/Reels</h1>
+        <p>أنشئ فيديو احترافي تلقائياً من أي رابط منتج</p>
+    </div>
+
+    <div class="content">
+
+        <div class="browser-warning" id="browserWarning">
+            ⚠️ متصفحك لا يدعم تسجيل الفيديو. استخدم Chrome أو Edge للأداء الأفضل.
+        </div>
+
+        <!-- 1) إدخال رابط المنتج -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-link"></i> رابط المنتج</h3>
+            <div class="input-row">
+                <input type="text" id="productUrl" placeholder="ألصق رابط منتج AliExpress هنا..." dir="ltr">
+                <button class="btn" id="fetchBtn"><i class="fas fa-download"></i> جلب</button>
+            </div>
+            <div class="product-preview" id="productPreview">
+                <img id="previewImg" src="" alt="">
+                <div class="product-info">
+                    <h3 id="previewTitle"></h3>
+                    <div>
+                        <span class="original" id="previewOriginal"></span>
+                        <span class="price" id="previewPrice"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2) اختيار القالب -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-palette"></i> القالب</h3>
+            <div class="templates-grid" id="templatesGrid">
+                <div class="template-card active" data-template="burst">
+                    <div class="template-thumb" style="background: linear-gradient(135deg,#FF7043,#E64A19)">⚡</div>
+                    <div class="template-name">عرض ناري</div>
+                </div>
+                <div class="template-card" data-template="story">
+                    <div class="template-thumb" style="background: linear-gradient(135deg,#9C27B0,#673AB7)">📖</div>
+                    <div class="template-name">قصة</div>
+                </div>
+                <div class="template-card" data-template="minimal">
+                    <div class="template-thumb" style="background: linear-gradient(135deg,#1a1a2e,#16213e)">✨</div>
+                    <div class="template-name">أنيق</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3) إعدادات -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-sliders-h"></i> الإعدادات</h3>
+
+            <div class="form-group">
+                <label>المدة</label>
+                <div class="options-row" id="durationRow">
+                    <div class="option-btn" data-duration="10">10 ث</div>
+                    <div class="option-btn active" data-duration="15">15 ث</div>
+                    <div class="option-btn" data-duration="30">30 ث</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>نص رئيسي (Hook)</label>
+                <input type="text" class="m-input" id="hookText" placeholder="مثال: عرض الأسبوع 🔥">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>عنوان المنتج</label>
+                    <input type="text" class="m-input" id="productTitle" placeholder="سيُملأ تلقائياً">
+                </div>
+                <div class="form-group">
+                    <label>السعر</label>
+                    <input type="text" class="m-input" id="productPrice" placeholder="مثال: 1500 دج">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>دعوة لاتخاذ إجراء (CTA)</label>
+                <input type="text" class="m-input" id="ctaText" value="اطلب الآن من البايو 👇">
+            </div>
+
+            <div class="form-group">
+                <label>موسيقى خلفية (اختياري)</label>
+                <div class="audio-controls">
+                    <label class="file-label" id="audioLabel">
+                        <i class="fas fa-music"></i>
+                        <span id="audioLabelText">اختر ملف صوتي MP3/WAV</span>
+                    </label>
+                    <input type="file" id="audioFile" accept="audio/*">
+                    <button class="btn btn-secondary" id="clearAudioBtn" style="display:none"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="helper">سيتم خفض صوت الموسيقى تلقائياً ودمجها مع الفيديو</div>
+            </div>
+        </div>
+
+        <!-- 4) معاينة وتسجيل -->
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-film"></i> المعاينة</h3>
+            <div class="canvas-stage">
+                <canvas id="previewCanvas" width="540" height="960"></canvas>
+                <div class="recording-badge" id="recBadge">REC</div>
+            </div>
+
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="actions-row">
+                <button class="btn btn-secondary" id="playBtn">
+                    <i class="fas fa-play"></i> معاينة
+                </button>
+                <button class="btn" id="recordBtn">
+                    <i class="fas fa-circle"></i> تسجيل
+                </button>
+            </div>
+
+            <button class="btn btn-success btn-block" id="downloadBtn" style="display:none; margin-top: 10px;">
+                <i class="fas fa-download"></i> تحميل الفيديو
+            </button>
+        </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== State =====
+        const state = {
+            product: null,
+            template: 'burst',
+            duration: 15,
+            audioBuffer: null,
+            audioFile: null,
+            recordedBlob: null,
+            isPlaying: false,
+            isRecording: false,
+            animationFrame: null,
+            startTime: 0,
+            mediaRecorder: null,
+            recordedChunks: [],
+            productImages: [],
+        };
+
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.direction = 'rtl';
+        const W = canvas.width;
+        const H = canvas.height;
+        let lastBlobUrl = null;
+
+        // ===== Utility =====
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show ' + type;
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+
+        function loadImage(url) {
+            const tryLoad = (src) => new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                let settled = false;
+                const done = (ok, val) => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(to);
+                    if (ok) resolve(val); else reject(val);
+                };
+                img.onload = () => done(true, img);
+                img.onerror = () => done(false, new Error('image load failed'));
+                const to = setTimeout(() => done(false, new Error('image load timeout')), 8000);
+                img.src = src;
+            });
+            return tryLoad(url).catch(() =>
+                tryLoad('/api/proxy-image?url=' + encodeURIComponent(url))
+            );
+        }
+
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+        function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+        // ===== Browser feature check =====
+        if (!('MediaRecorder' in window) || !canvas.captureStream) {
+            document.getElementById('browserWarning').classList.add('show');
+        }
+
+        // ===== Product fetching =====
+        document.getElementById('fetchBtn').addEventListener('click', fetchProduct);
+        document.getElementById('productUrl').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fetchProduct();
+        });
+
+        async function fetchProduct() {
+            const url = document.getElementById('productUrl').value.trim();
+            if (!url) { showToast('ألصق رابط المنتج أولاً', 'error'); return; }
+
+            const btn = document.getElementById('fetchBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+                const credentials = { cook: settings.cookie || '' };
+                const res = await fetch('/api/affiliate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, credentials })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'فشل الجلب');
+
+                state.product = data.data;
+                document.getElementById('previewImg').src = data.data.image || '';
+                document.getElementById('previewTitle').textContent = data.data.title || '';
+                document.getElementById('previewPrice').textContent = data.data.price || '';
+                document.getElementById('previewOriginal').textContent = data.data.original_price || '';
+                document.getElementById('productPreview').classList.add('show');
+
+                document.getElementById('productTitle').value = data.data.title || '';
+                document.getElementById('productPrice').value = data.data.price || '';
+                if (data.data.discount && !document.getElementById('hookText').value) {
+                    document.getElementById('hookText').value = `خصم ${data.data.discount} 🔥`;
+                }
+
+                // Pre-load product image
+                if (data.data.image) {
+                    try {
+                        const img = await loadImage(data.data.image);
+                        state.productImages = [img];
+                        drawFrame(0);
+                    } catch (e) {
+                        console.warn('Image load failed:', e);
+                        showToast('تم جلب البيانات لكن فشل تحميل الصورة', 'error');
+                    }
+                }
+
+                showToast('✅ تم جلب بيانات المنتج', 'success');
+            } catch (e) {
+                showToast(e.message || 'حدث خطأ', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-download"></i> جلب';
+            }
+        }
+
+        // ===== Templates / Options selection =====
+        document.querySelectorAll('#templatesGrid .template-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('#templatesGrid .template-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                state.template = card.dataset.template;
+                drawFrame(0);
+            });
+        });
+
+        document.querySelectorAll('#durationRow .option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#durationRow .option-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.duration = parseInt(btn.dataset.duration);
+            });
+        });
+
+        // ===== Live re-render on text change =====
+        ['hookText', 'productTitle', 'productPrice', 'ctaText'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => drawFrame(0));
+        });
+
+        // ===== Audio file handling =====
+        const audioInput = document.getElementById('audioFile');
+        const audioLabel = document.getElementById('audioLabel');
+        const audioLabelText = document.getElementById('audioLabelText');
+        const clearAudioBtn = document.getElementById('clearAudioBtn');
+
+        audioLabel.addEventListener('click', () => audioInput.click());
+        audioInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            state.audioFile = file;
+            audioLabelText.textContent = file.name.length > 30 ? file.name.substring(0, 30) + '...' : file.name;
+            audioLabel.classList.add('has-file');
+            clearAudioBtn.style.display = 'inline-flex';
+        });
+        clearAudioBtn.addEventListener('click', () => {
+            state.audioFile = null;
+            audioInput.value = '';
+            audioLabelText.textContent = 'اختر ملف صوتي MP3/WAV';
+            audioLabel.classList.remove('has-file');
+            clearAudioBtn.style.display = 'none';
+        });
+
+        // ===== Drawing helpers =====
+        function clearBg(template) {
+            if (template === 'burst') {
+                const grad = ctx.createLinearGradient(0, 0, W, H);
+                grad.addColorStop(0, '#1a0a0a');
+                grad.addColorStop(1, '#000');
+                ctx.fillStyle = grad;
+            } else if (template === 'story') {
+                const grad = ctx.createLinearGradient(0, 0, 0, H);
+                grad.addColorStop(0, '#2d1b69');
+                grad.addColorStop(1, '#0a0a14');
+                ctx.fillStyle = grad;
+            } else {
+                ctx.fillStyle = '#0a0a14';
+            }
+            ctx.fillRect(0, 0, W, H);
+        }
+
+        function drawTextWrapped(text, x, y, maxWidth, lineHeight, font, color, align = 'center', maxLines = 3) {
+            ctx.font = font;
+            ctx.fillStyle = color;
+            ctx.textAlign = align;
+            ctx.textBaseline = 'middle';
+            const words = (text || '').split(' ');
+            const lines = [];
+            let line = '';
+            for (const w of words) {
+                const test = line ? line + ' ' + w : w;
+                if (ctx.measureText(test).width > maxWidth && line) {
+                    lines.push(line);
+                    line = w;
+                } else {
+                    line = test;
+                }
+            }
+            if (line) lines.push(line);
+            const shown = lines.slice(0, maxLines);
+            if (lines.length > maxLines) shown[maxLines - 1] = shown[maxLines - 1].slice(0, -1) + '…';
+            const total = shown.length * lineHeight;
+            shown.forEach((l, i) => ctx.fillText(l, x, y - total / 2 + i * lineHeight + lineHeight / 2));
+            return shown.length;
+        }
+
+        function drawImageCover(img, x, y, w, h, scale = 1) {
+            if (!img) {
+                ctx.fillStyle = '#222';
+                ctx.fillRect(x, y, w, h);
+                ctx.fillStyle = '#555';
+                ctx.font = '24px Cairo';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('📷 لا توجد صورة', x + w / 2, y + h / 2);
+                return;
+            }
+            const scaledW = w * scale;
+            const scaledH = h * scale;
+            const dx = x - (scaledW - w) / 2;
+            const dy = y - (scaledH - h) / 2;
+            const ratio = Math.max(scaledW / img.width, scaledH / img.height);
+            const sw = scaledW / ratio;
+            const sh = scaledH / ratio;
+            const sx = (img.width - sw) / 2;
+            const sy = (img.height - sh) / 2;
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x, y, w, h);
+            ctx.clip();
+            ctx.drawImage(img, sx, sy, sw, sh, dx, dy, scaledW, scaledH);
+            ctx.restore();
+        }
+
+        function drawRoundedRect(x, y, w, h, r, fill, stroke) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+            if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+            if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 3; ctx.stroke(); }
+        }
+
+        // ===== TEMPLATE: Burst =====
+        function renderBurst(progress) {
+            clearBg('burst');
+            const hook = document.getElementById('hookText').value || 'عرض ناري 🔥';
+            const title = document.getElementById('productTitle').value || 'منتج رائع';
+            const price = document.getElementById('productPrice').value || '';
+            const cta = document.getElementById('ctaText').value || 'اطلب الآن 👇';
+            const img = state.productImages[0];
+
+            // Animated radial bursts in background
+            const burstCount = 6;
+            for (let i = 0; i < burstCount; i++) {
+                const a = (i / burstCount) * Math.PI * 2 + progress * Math.PI * 2;
+                const r = 200 + Math.sin(progress * 6 + i) * 60;
+                const x = W / 2 + Math.cos(a) * r;
+                const y = H / 2 + Math.sin(a) * r;
+                const grad = ctx.createRadialGradient(x, y, 0, x, y, 250);
+                grad.addColorStop(0, 'rgba(255,112,67,0.25)');
+                grad.addColorStop(1, 'rgba(255,112,67,0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            // Hook text - slides down from top
+            const hookY = 130 + (1 - easeOutCubic(Math.min(1, progress * 4))) * -100;
+            const hookAlpha = Math.min(1, progress * 6);
+            ctx.globalAlpha = hookAlpha;
+            ctx.shadowColor = 'rgba(255,112,67,0.6)';
+            ctx.shadowBlur = 25;
+            drawTextWrapped(hook, W / 2, hookY, W - 60, 60, '900 52px Cairo', '#fff', 'center', 2);
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
+
+            // Product image - zoom & pan effect (Ken Burns)
+            const imgScale = 1 + progress * 0.12;
+            const imgY = 280;
+            const imgH = 420;
+            const imgPadX = 50;
+            ctx.save();
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetY = 10;
+            drawRoundedRect(imgPadX, imgY, W - imgPadX * 2, imgH, 24, '#fff');
+            ctx.restore();
+            drawImageCover(img, imgPadX + 8, imgY + 8, W - imgPadX * 2 - 16, imgH - 16, imgScale);
+
+            // Discount badge - pulses
+            const pulse = 1 + Math.sin(progress * Math.PI * 8) * 0.05;
+            ctx.save();
+            ctx.translate(W - 110, imgY + 30);
+            ctx.scale(pulse, pulse);
+            ctx.rotate(-0.15);
+            drawRoundedRect(-60, -25, 120, 50, 10, '#FF1744');
+            ctx.fillStyle = '#fff';
+            ctx.font = '900 20px Cairo';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🔥 خصم', 0, 0);
+            ctx.restore();
+
+            // Title under image
+            const titleY = imgY + imgH + 60;
+            ctx.fillStyle = '#fff';
+            drawTextWrapped(title, W / 2, titleY, W - 60, 38, '700 28px Cairo', '#fff', 'center', 2);
+
+            // Price - bouncy entrance
+            if (price) {
+                const priceProgress = Math.min(1, Math.max(0, (progress - 0.2) * 3));
+                const bounce = priceProgress < 0.7
+                    ? easeOutCubic(priceProgress / 0.7) * 1.15
+                    : 1.15 - easeOutCubic((priceProgress - 0.7) / 0.3) * 0.15;
+                const priceY = titleY + 100;
+                ctx.save();
+                ctx.translate(W / 2, priceY);
+                ctx.scale(bounce, bounce);
+                drawRoundedRect(-160, -38, 320, 76, 18, '#FF7043');
+                ctx.fillStyle = '#fff';
+                ctx.font = '900 42px Cairo';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(price, 0, 0);
+                ctx.restore();
+            }
+
+            // CTA at bottom - bouncing arrow
+            const ctaY = H - 80;
+            const arrowBounce = Math.sin(progress * Math.PI * 6) * 8;
+            ctx.fillStyle = '#fff';
+            ctx.font = '700 30px Cairo';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(cta, W / 2, ctaY + arrowBounce);
+        }
+
+        // ===== TEMPLATE: Story =====
+        function renderStory(progress) {
+            clearBg('story');
+            const hook = document.getElementById('hookText').value || 'لاحظ هذا 👀';
+            const title = document.getElementById('productTitle').value || 'منتج';
+            const price = document.getElementById('productPrice').value || '';
+            const cta = document.getElementById('ctaText').value || 'في البايو 👇';
+            const img = state.productImages[0];
+
+            // Top bar progress (Instagram story style)
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            drawRoundedRect(20, 30, W - 40, 4, 2, 'rgba(255,255,255,0.3)');
+            drawRoundedRect(20, 30, (W - 40) * progress, 4, 2, '#fff');
+
+            // Hook - large text top
+            const hookY = 130;
+            ctx.globalAlpha = Math.min(1, progress * 5);
+            drawTextWrapped(hook, W / 2, hookY, W - 60, 50, '800 40px Cairo', '#fff', 'center', 2);
+            ctx.globalAlpha = 1;
+
+            // Image - rotates in
+            const rotate = (1 - easeOutCubic(Math.min(1, progress * 3))) * 0.4;
+            const imgScale = 0.6 + easeOutCubic(Math.min(1, progress * 3)) * 0.4;
+            ctx.save();
+            ctx.translate(W / 2, H / 2);
+            ctx.rotate(rotate);
+            ctx.scale(imgScale, imgScale);
+            ctx.shadowColor = 'rgba(156,39,176,0.5)';
+            ctx.shadowBlur = 40;
+            drawRoundedRect(-200, -200, 400, 400, 30, '#fff');
+            ctx.shadowBlur = 0;
+            drawImageCover(img, -192, -192, 384, 384, 1 + progress * 0.08);
+            ctx.restore();
+
+            // Title - slides from right
+            const titleX = W / 2 + (1 - easeOutCubic(Math.min(1, (progress - 0.15) * 3))) * 300;
+            const titleAlpha = Math.min(1, Math.max(0, (progress - 0.15) * 4));
+            ctx.globalAlpha = titleAlpha;
+            ctx.fillStyle = '#fff';
+            drawTextWrapped(title, titleX, H / 2 + 280, W - 60, 36, '700 26px Cairo', '#fff', 'center', 2);
+            ctx.globalAlpha = 1;
+
+            // Price tag - slides from left
+            if (price) {
+                const priceX = W / 2 - (1 - easeOutCubic(Math.min(1, (progress - 0.3) * 3))) * 300;
+                const priceAlpha = Math.min(1, Math.max(0, (progress - 0.3) * 4));
+                ctx.globalAlpha = priceAlpha;
+                ctx.save();
+                ctx.translate(priceX, H / 2 + 380);
+                drawRoundedRect(-150, -35, 300, 70, 35, 'rgba(255,255,255,0.95)');
+                ctx.fillStyle = '#9C27B0';
+                ctx.font = '900 34px Cairo';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💰 ' + price, 0, 0);
+                ctx.restore();
+                ctx.globalAlpha = 1;
+            }
+
+            // CTA at bottom with arrow
+            const ctaAlpha = Math.min(1, Math.max(0, (progress - 0.5) * 3));
+            ctx.globalAlpha = ctaAlpha;
+            ctx.fillStyle = '#fff';
+            ctx.font = '800 32px Cairo';
+            ctx.textAlign = 'center';
+            ctx.fillText(cta, W / 2, H - 80);
+            ctx.globalAlpha = 1;
+        }
+
+        // ===== TEMPLATE: Minimal =====
+        function renderMinimal(progress) {
+            clearBg('minimal');
+            const hook = document.getElementById('hookText').value || 'منتج جديد';
+            const title = document.getElementById('productTitle').value || '';
+            const price = document.getElementById('productPrice').value || '';
+            const cta = document.getElementById('ctaText').value || 'اطلب الآن';
+            const img = state.productImages[0];
+
+            // Subtle moving gradient
+            const gx = Math.sin(progress * Math.PI * 2) * 100;
+            const grad = ctx.createRadialGradient(W / 2 + gx, H / 2, 50, W / 2, H / 2, 700);
+            grad.addColorStop(0, 'rgba(255,112,67,0.15)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Number indicator (1/2)
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.font = '600 18px Cairo';
+            ctx.textAlign = 'left';
+            ctx.fillText('— ' + (progress < 0.5 ? '01' : '02'), 30, 60);
+
+            // Hook
+            const hookAlpha = progress < 0.5 ? Math.min(1, progress * 8) : Math.max(0, 1 - (progress - 0.5) * 8);
+            ctx.globalAlpha = hookAlpha;
+            drawTextWrapped(hook, W / 2, 200, W - 60, 56, '800 46px Cairo', '#fff', 'center', 2);
+            ctx.globalAlpha = 1;
+
+            // Image - circular with scale
+            const imgScale = 1 + progress * 0.1;
+            const imgRadius = 200;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(W / 2, 540, imgRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(255,255,255,0.15)';
+            ctx.shadowBlur = 50;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.clip();
+            if (img) {
+                const sw = imgRadius * 2;
+                const sh = imgRadius * 2;
+                const ratio = Math.max(sw / img.width, sh / img.height) * imgScale;
+                const dw = img.width * ratio;
+                const dh = img.height * ratio;
+                ctx.drawImage(img, W / 2 - dw / 2, 540 - dh / 2, dw, dh);
+            }
+            ctx.restore();
+
+            // Subtle ring
+            ctx.strokeStyle = 'rgba(255,112,67,0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(W / 2, 540, imgRadius + 12 + Math.sin(progress * Math.PI * 4) * 4, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Title
+            const titleAlpha = Math.min(1, Math.max(0, (progress - 0.3) * 5));
+            ctx.globalAlpha = titleAlpha;
+            drawTextWrapped(title, W / 2, 820, W - 60, 34, '700 26px Cairo', '#fff', 'center', 2);
+            ctx.globalAlpha = 1;
+
+            // Price - elegant line
+            if (price) {
+                const priceAlpha = Math.min(1, Math.max(0, (progress - 0.45) * 5));
+                ctx.globalAlpha = priceAlpha;
+                ctx.fillStyle = '#FF7043';
+                ctx.font = '900 50px Cairo';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(price, W / 2, 900);
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // ===== Master draw =====
+        function drawFrame(progress) {
+            const fns = { burst: renderBurst, story: renderStory, minimal: renderMinimal };
+            const fn = fns[state.template] || renderBurst;
+            fn(progress);
+        }
+
+        // ===== Animation loop (preview) =====
+        document.getElementById('playBtn').addEventListener('click', () => {
+            if (state.isPlaying) stopPreview();
+            else startPreview();
+        });
+
+        function startPreview() {
+            if (!state.productImages.length) {
+                showToast('اجلب بيانات منتج أولاً', 'error');
+                return;
+            }
+            state.isPlaying = true;
+            state.startTime = performance.now();
+            const playBtn = document.getElementById('playBtn');
+            playBtn.innerHTML = '<i class="fas fa-stop"></i> إيقاف';
+
+            const loop = (now) => {
+                if (!state.isPlaying) return;
+                const elapsed = (now - state.startTime) / 1000;
+                const progress = (elapsed % state.duration) / state.duration;
+                drawFrame(progress);
+                state.animationFrame = requestAnimationFrame(loop);
+            };
+            state.animationFrame = requestAnimationFrame(loop);
+        }
+
+        function stopPreview() {
+            state.isPlaying = false;
+            cancelAnimationFrame(state.animationFrame);
+            document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i> معاينة';
+            drawFrame(0);
+        }
+
+        // ===== Recording =====
+        document.getElementById('recordBtn').addEventListener('click', startRecording);
+
+        async function startRecording() {
+            if (!state.productImages.length) {
+                showToast('اجلب بيانات منتج أولاً', 'error');
+                return;
+            }
+            if (state.isRecording) return;
+
+            // Stop any preview
+            if (state.isPlaying) stopPreview();
+
+            const recordBtn = document.getElementById('recordBtn');
+            const recBadge = document.getElementById('recBadge');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            downloadBtn.style.display = 'none';
+            state.recordedChunks = [];
+            state.isRecording = true;
+            recordBtn.disabled = true;
+            recordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
+            recBadge.classList.add('show');
+            progressBar.classList.add('show');
+
+            // Resources to clean up
+            let canvasStream = null;
+            let combinedStream = null;
+            let audioCtx = null;
+            let audioSource = null;
+
+            const fullCleanup = () => {
+                if (audioSource) { try { audioSource.stop(); } catch (e) {} audioSource = null; }
+                if (audioCtx) { try { audioCtx.close(); } catch (e) {} audioCtx = null; }
+                if (combinedStream) { try { combinedStream.getTracks().forEach(t => t.stop()); } catch (e) {} }
+                if (canvasStream && canvasStream !== combinedStream) {
+                    try { canvasStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+                }
+                canvasStream = null;
+                combinedStream = null;
+            };
+
+            const resetUI = () => {
+                state.isRecording = false;
+                recBadge.classList.remove('show');
+                progressBar.classList.remove('show');
+                recordBtn.disabled = false;
+                recordBtn.innerHTML = '<i class="fas fa-circle"></i> تسجيل';
+                progressFill.style.width = '0%';
+            };
+
+            try {
+                const fps = 30;
+                canvasStream = canvas.captureStream(fps);
+                combinedStream = canvasStream;
+
+                // Audio mixing if user uploaded
+                if (state.audioFile) {
+                    try {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        const arrayBuf = await state.audioFile.arrayBuffer();
+                        const audioBuf = await audioCtx.decodeAudioData(arrayBuf);
+                        audioSource = audioCtx.createBufferSource();
+                        audioSource.buffer = audioBuf;
+                        audioSource.loop = true;
+                        const gain = audioCtx.createGain();
+                        gain.gain.value = 0.6;
+                        const dest = audioCtx.createMediaStreamDestination();
+                        audioSource.connect(gain);
+                        gain.connect(dest);
+                        audioSource.start();
+                        const tracks = [...canvasStream.getVideoTracks(), ...dest.stream.getAudioTracks()];
+                        combinedStream = new MediaStream(tracks);
+                    } catch (audioErr) {
+                        console.warn('Audio mixing failed:', audioErr);
+                        showToast('تعذر دمج الصوت — التسجيل بدون صوت', 'error');
+                        if (audioSource) { try { audioSource.stop(); } catch (e) {} audioSource = null; }
+                        if (audioCtx) { try { audioCtx.close(); } catch (e) {} audioCtx = null; }
+                    }
+                }
+
+                // Pick best codec
+                const mimeOptions = [
+                    'video/webm;codecs=vp9,opus',
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm;codecs=vp9',
+                    'video/webm'
+                ];
+                let mimeType = '';
+                for (const m of mimeOptions) {
+                    if (MediaRecorder.isTypeSupported(m)) { mimeType = m; break; }
+                }
+
+                state.mediaRecorder = new MediaRecorder(combinedStream, {
+                    mimeType,
+                    videoBitsPerSecond: 4_000_000
+                });
+
+                state.mediaRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) state.recordedChunks.push(e.data);
+                };
+
+                state.mediaRecorder.onstop = () => {
+                    const blob = new Blob(state.recordedChunks, { type: 'video/webm' });
+                    state.recordedBlob = blob;
+                    // Revoke previous blob URL to avoid memory leak
+                    if (lastBlobUrl) { try { URL.revokeObjectURL(lastBlobUrl); } catch (e) {} }
+                    lastBlobUrl = URL.createObjectURL(blob);
+                    downloadBtn.style.display = 'flex';
+                    downloadBtn.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = lastBlobUrl;
+                        a.download = `affilidz-${state.template}-${Date.now()}.webm`;
+                        a.click();
+                    };
+                    fullCleanup();
+                    showToast('✅ تم إنشاء الفيديو! انقر "تحميل الفيديو"', 'success');
+                };
+
+                state.mediaRecorder.onerror = (ev) => {
+                    console.error('MediaRecorder error:', ev);
+                    showToast('خطأ أثناء التسجيل', 'error');
+                    fullCleanup();
+                    resetUI();
+                };
+
+                state.mediaRecorder.start(100);
+
+                // Render frames in real-time for the duration
+                const recStart = performance.now();
+                const renderLoop = (now) => {
+                    if (!state.isRecording) return;
+                    const elapsed = (now - recStart) / 1000;
+                    const progress = Math.min(1, elapsed / state.duration);
+                    drawFrame(progress);
+                    progressFill.style.width = (progress * 100) + '%';
+
+                    if (elapsed >= state.duration) {
+                        try { state.mediaRecorder.stop(); } catch (e) {}
+                        // onstop will run cleanup; just reset UI here
+                        resetUI();
+                        return;
+                    }
+                    requestAnimationFrame(renderLoop);
+                };
+                requestAnimationFrame(renderLoop);
+
+            } catch (e) {
+                console.error(e);
+                showToast('فشل التسجيل: ' + e.message, 'error');
+                fullCleanup();
+                resetUI();
+            }
+        }
+
+        // ===== Initial draw =====
+        drawFrame(0);
+    </script>
+</body>
+</html>
