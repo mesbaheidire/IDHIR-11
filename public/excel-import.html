@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استيراد منتجات من Excel - AffiliDz</title>
+<link rel="stylesheet" href="/modern-theme.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Tajawal', sans-serif; background: #0f0f1e; color: #fff; margin: 0; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #1D6F42, #2d8659); padding: 20px; text-align: center; position: relative; }
+  .header h1 { margin: 0; font-size: 24px; }
+  .back-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+  .card { background: #1a1a2e; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #2a2a3e; }
+  .card h2 { margin: 0 0 15px; color: #4CAF50; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+  .step-num { background: #1D6F42; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+  .upload-zone { border: 2px dashed #4CAF50; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: 0.2s; background: rgba(76,175,80,0.05); }
+  .upload-zone:hover { background: rgba(76,175,80,0.1); }
+  .upload-zone i { font-size: 48px; color: #4CAF50; margin-bottom: 10px; }
+  input[type="file"] { display: none; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; margin-bottom: 5px; font-size: 14px; color: #aaa; }
+  .field select, .field input, .field textarea { width: 100%; padding: 10px; background: #0f0f1e; border: 1px solid #2a2a3e; border-radius: 6px; color: #fff; box-sizing: border-box; font-family: inherit; }
+  .field textarea { resize: vertical; min-height: 100px; font-family: monospace; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+  .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+  .btn-primary { background: #4CAF50; color: #fff; }
+  .btn-warning { background: #ff9800; color: #fff; }
+  .btn-danger { background: #f44336; color: #fff; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .progress-bar { width: 100%; height: 24px; background: #0f0f1e; border-radius: 12px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); transition: width 0.3s; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
+  .stat { background: #0f0f1e; padding: 12px; border-radius: 8px; text-align: center; }
+  .stat-num { font-size: 24px; font-weight: bold; }
+  .stat-label { font-size: 12px; color: #888; }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: 12px; max-height: 200px; overflow: auto; display: block; }
+  .preview-table th { background: #1D6F42; padding: 6px; position: sticky; top: 0; }
+  .preview-table td { padding: 6px; border-bottom: 1px solid #2a2a3e; }
+  .log-entry { padding: 6px 10px; margin: 4px 0; border-radius: 6px; font-size: 13px; display: flex; gap: 10px; align-items: center; }
+  .log-entry.success { background: rgba(76,175,80,0.15); border-right: 3px solid #4CAF50; }
+  .log-entry.failed { background: rgba(244,67,54,0.15); border-right: 3px solid #f44336; }
+  .log-entry.skipped { background: rgba(158,158,158,0.15); border-right: 3px solid #9e9e9e; }
+  .logs-container { max-height: 300px; overflow-y: auto; }
+  .hint { font-size: 12px; color: #888; margin-top: 4px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+  .badge { display: inline-block; padding: 3px 8px; background: #2a2a3e; border-radius: 12px; font-size: 11px; margin: 2px; }
+  .badge-info { background: #1976D2; }
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 8px; color: #fff; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: none; }
+  .toast.show { display: block; animation: slideDown 0.3s; }
+  .toast.success { background: #4CAF50; }
+  .toast.error { background: #f44336; }
+  @keyframes slideDown { from { transform: translate(-50%, -20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <button class="back-btn" onclick="location.href='/'"><i class="fas fa-arrow-right"></i> رجوع</button>
+  <h1><i class="fas fa-file-excel"></i> استيراد منتجات من Excel</h1>
+  <p style="margin: 5px 0 0; opacity: 0.9; font-size: 14px;">انشر منتجاتك دفعة واحدة من جدول بيانات</p>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div class="container">
+
+  <div class="card">
+    <h2><span class="step-num">1</span> ارفع ملف Excel</h2>
+    <label class="upload-zone" for="excelFile" id="uploadZone">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <div id="uploadText">اضغط هنا أو اسحب ملف .xlsx</div>
+      <div class="hint">الحد الأقصى: 10 ميجابايت • صيغ مدعومة: xlsx, xls, csv</div>
+    </label>
+    <input type="file" id="excelFile" accept=".xlsx,.xls,.csv">
+    <div id="fileInfo" style="margin-top: 10px; display: none;">
+      <span class="badge badge-info" id="fileName"></span>
+      <span class="badge" id="rowCount"></span>
+    </div>
+  </div>
+
+  <div class="card" id="mappingCard" style="display: none;">
+    <h2><span class="step-num">2</span> اختر الأعمدة</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>عمود الرابط <span style="color:#f44336">*</span></label>
+        <select id="mapLink"></select>
+      </div>
+      <div class="field">
+        <label>عمود اسم المنتج</label>
+        <select id="mapTitle"></select>
+      </div>
+      <div class="field">
+        <label>عمود السعر</label>
+        <select id="mapPrice"></select>
+      </div>
+      <div class="field">
+        <label>عمود الكوبون (اختياري)</label>
+        <select id="mapCoupon"></select>
+      </div>
+      <div class="field">
+        <label>عمود رابط الصورة (اختياري)</label>
+        <select id="mapImage"></select>
+      </div>
+    </div>
+
+    <details style="margin-top: 10px;">
+      <summary style="cursor:pointer; color:#4CAF50;"><i class="fas fa-eye"></i> معاينة أول 5 صفوف</summary>
+      <div style="overflow-x:auto; margin-top:10px;"><table class="preview-table" id="previewTable"></table></div>
+    </details>
+  </div>
+
+  <div class="card" id="templateCard" style="display: none;">
+    <h2><span class="step-num">3</span> معاينة الرسالة</h2>
+    <p style="color:#aaa; font-size:13px; margin:0 0 10px;">
+      <i class="fas fa-info-circle" style="color:#4CAF50"></i>
+      تُستخدم نفس قوالب الرسالة من <strong>الإعدادات</strong> (المقدمة، السعر، نص الرابط، الكوبون، التذييل، الهاشتاقات).
+      لتعديل التنسيق، اذهب إلى الصفحة الرئيسية ← الإعدادات.
+    </p>
+    <button class="btn btn-primary" onclick="previewMessage()" type="button"><i class="fas fa-eye"></i> معاينة رسالة الصف الأول</button>
+    <div id="messagePreview" style="display:none; margin-top:12px; background:#0f0f1e; padding:15px; border-radius:8px; white-space:pre-wrap; font-family:monospace; font-size:13px;"></div>
+  </div>
+
+  <div class="card" id="optionsCard" style="display: none;">
+    <h2><span class="step-num">4</span> الإعدادات</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>التأخير بين المنشورات (ثواني)</label>
+        <input type="number" id="delaySeconds" value="30" min="5" max="600">
+        <div class="hint">يُنصح بـ 30 ثانية على الأقل لتجنب حظر تيليغرام</div>
+      </div>
+      <div class="field">
+        <label>القناة المستهدفة</label>
+        <select id="channelChoice">
+          <option value="1">القناة 1</option>
+          <option value="2">القناة 2</option>
+          <option value="both">كلتا القناتين</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" id="autoConvert" checked> تحويل روابط AliExpress تلقائياً لروابط أفليت</label>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" id="aiRefineTitle" checked> تلخيص العناوين الطويلة بـ Gemini AI ✨</label>
+      <div class="hint">يلخّص العناوين الأطول من 40 حرف لتصبح قصيرة وجذابة (يحتاج مفتاح Gemini في الإعدادات)</div>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" id="saveToHistory" checked> حفظ المنشورات في "المحفوظات"</label>
+    </div>
+    <button class="btn btn-primary" id="startBtn" onclick="startImport()" style="width:100%; padding:15px; font-size:16px;">
+      <i class="fas fa-rocket"></i> بدء النشر
+    </button>
+  </div>
+
+  <div class="card" id="progressCard" style="display: none;">
+    <h2><span class="step-num">5</span> التقدم</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%">0%</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">المجموع</div></div>
+      <div class="stat"><div class="stat-num" style="color:#4CAF50" id="statSuccess">0</div><div class="stat-label">نجح</div></div>
+      <div class="stat"><div class="stat-num" style="color:#f44336" id="statFailed">0</div><div class="stat-label">فشل</div></div>
+      <div class="stat"><div class="stat-num" style="color:#9e9e9e" id="statSkipped">0</div><div class="stat-label">تخطي</div></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-warning" id="pauseBtn" onclick="controlJob('pause')"><i class="fas fa-pause"></i> إيقاف مؤقت</button>
+      <button class="btn btn-primary" id="resumeBtn" onclick="controlJob('resume')" style="display:none"><i class="fas fa-play"></i> استئناف</button>
+      <button class="btn btn-danger" onclick="controlJob('cancel')"><i class="fas fa-stop"></i> إلغاء</button>
+    </div>
+    <h3 style="margin-top:20px; color:#aaa; font-size:14px;">السجل</h3>
+    <div class="logs-container" id="logsContainer"></div>
+  </div>
+
+</div>
+
+<script>
+let parsedData = null;
+let currentJobId = null;
+let pollInterval = null;
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function getAppSettings() {
+  try { return JSON.parse(localStorage.getItem('appSettings') || '{}'); } catch (e) { return {}; }
+}
+
+function getCredentials() {
+  const s = getAppSettings();
+  return {
+    cook: s.cook || '',
+    telegramToken: s.telegramToken || '',
+    channelId: s.channelId || '',
+    channelId2: s.channelId2 || '',
+    channelChoice: document.getElementById('channelChoice').value
+  };
+}
+
+function getMessageSettings() {
+  const s = getAppSettings();
+  return {
+    prefix: s.prefix || '📢تخفيض لـ',
+    salePrice: s.salePrice || '✅السعر بعد التخفيض:',
+    linkText: s.linkText || '📌رابط الشراء :',
+    couponText: s.couponText || '🎁كوبون:',
+    footer: s.footer || '⚠️ لا تنس استخدام البوت الرسمي لـ AffiliDz للحصول على أفضل العروض والتخفيضات من AliExpress 👇',
+    botLink: s.botLink || '@AffiliDz_bot',
+    hashtags: s.hashtags || '#Aliexpress'
+  };
+}
+
+function buildMessagePreview(row) {
+  const tpl = getMessageSettings();
+  const m = {
+    title: row[document.getElementById('mapTitle').value] || '',
+    price: row[document.getElementById('mapPrice').value] || '',
+    link: row[document.getElementById('mapLink').value] || '',
+    coupon: document.getElementById('mapCoupon').value ? (row[document.getElementById('mapCoupon').value] || '') : ''
+  };
+  let msg = `${tpl.prefix} ${m.title}\n\n`;
+  if (m.price) msg += `${tpl.salePrice} ${m.price}\n\n`;
+  msg += `${tpl.linkText}\n${m.link}\n\n`;
+  if (m.coupon && !/^(null|undefined|none)$/i.test(String(m.coupon).trim())) msg += `${tpl.couponText} ${m.coupon}\n\n`;
+  msg += `${tpl.footer}\n🔗 ${tpl.botLink}\n\n${tpl.hashtags}`;
+  return msg;
+}
+
+document.getElementById('excelFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('file', file);
+  document.getElementById('uploadText').textContent = '⏳ جاري التحليل...';
+  try {
+    const res = await fetch('/api/excel/parse', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    parsedData = data;
+    document.getElementById('uploadText').innerHTML = '<i class="fas fa-check-circle" style="color:#4CAF50"></i> تم التحميل بنجاح';
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('rowCount').textContent = `${data.totalRows} صف`;
+    document.getElementById('fileInfo').style.display = 'block';
+    populateColumnSelectors(data.columns);
+    buildPreviewTable(data.rows.slice(0, 5), data.columns);
+    document.getElementById('mappingCard').style.display = 'block';
+    document.getElementById('templateCard').style.display = 'block';
+    document.getElementById('optionsCard').style.display = 'block';
+  } catch (err) {
+    document.getElementById('uploadText').textContent = '❌ ' + err.message;
+    showToast(err.message, 'error');
+  }
+});
+
+function populateColumnSelectors(columns) {
+  const ids = ['mapLink', 'mapTitle', 'mapPrice', 'mapCoupon', 'mapImage'];
+  // أولوية الأعمدة: الأكثر تخصصاً أولاً (تنسيق AliExpress الرسمي)
+  const guesses = {
+    mapLink: ['promotion url', 'promotion_url', 'affiliate', 'link', 'url', 'رابط'],
+    mapTitle: ['product desc', 'product_desc', 'desc', 'title', 'name', 'product name', 'اسم', 'منتج', 'عنوان'],
+    mapPrice: ['discount price', 'discount_price', 'sale price', 'price', 'cost', 'سعر', 'ثمن'],
+    mapCoupon: ['code name', 'code_name', 'coupon code', 'coupon', 'كوبون'],
+    mapImage: ['image url', 'image_url', 'image', 'photo', 'pic', 'thumbnail', 'صورة']
+  };
+  ids.forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = (id === 'mapLink' ? '' : '<option value="">— لا شيء —</option>') +
+      columns.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    // ابحث بأولوية: نطابق كل كلمة دلالية بالترتيب على الأعمدة
+    let guess = null;
+    for (const keyword of guesses[id]) {
+      guess = columns.find(c => c.toLowerCase().includes(keyword.toLowerCase()));
+      if (guess) break;
+    }
+    if (guess) sel.value = guess;
+  });
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function buildPreviewTable(rows, columns) {
+  const t = document.getElementById('previewTable');
+  t.innerHTML = '<thead><tr>' + columns.map(c => `<th>${escapeHtml(c)}</th>`).join('') + '</tr></thead>' +
+    '<tbody>' + rows.map(r => '<tr>' + columns.map(c => `<td>${escapeHtml(String(r[c] || '').substring(0, 40))}</td>`).join('') + '</tr>').join('') + '</tbody>';
+}
+
+function previewMessage() {
+  if (!parsedData || !parsedData.rows[0]) return;
+  const p = document.getElementById('messagePreview');
+  p.textContent = buildMessagePreview(parsedData.rows[0]);
+  p.style.display = 'block';
+}
+
+async function startImport() {
+  if (!parsedData) { showToast('ارفع ملف Excel أولاً', 'error'); return; }
+  const linkCol = document.getElementById('mapLink').value;
+  if (!linkCol) { showToast('اختر عمود الرابط', 'error'); return; }
+
+  const creds = getCredentials();
+  if (!creds.telegramToken) { showToast('أدخل توكن البوت في الإعدادات أولاً', 'error'); return; }
+  if (!creds.channelId && !creds.channelId2) { showToast('أدخل معرف القناة في الإعدادات', 'error'); return; }
+
+  const mapping = {
+    link: linkCol,
+    title: document.getElementById('mapTitle').value,
+    price: document.getElementById('mapPrice').value,
+    coupon: document.getElementById('mapCoupon').value,
+    image: document.getElementById('mapImage').value
+  };
+
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البدء...';
+
+  try {
+    const res = await fetch('/api/excel/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rows: parsedData.rows,
+        mapping,
+        settings: getMessageSettings(),
+        credentials: creds,
+        delaySeconds: parseInt(document.getElementById('delaySeconds').value),
+        autoConvert: document.getElementById('autoConvert').checked,
+        aiRefineTitle: document.getElementById('aiRefineTitle').checked,
+        saveToHistory: document.getElementById('saveToHistory').checked
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    currentJobId = data.jobId;
+    document.getElementById('progressCard').style.display = 'block';
+    document.getElementById('statTotal').textContent = parsedData.totalRows;
+    pollInterval = setInterval(pollStatus, 2000);
+    showToast('بدأ النشر بنجاح ✅');
+    document.getElementById('progressCard').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    showToast(err.message, 'error');
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('startBtn').innerHTML = '<i class="fas fa-rocket"></i> بدء النشر';
+  }
+}
+
+async function pollStatus() {
+  if (!currentJobId) return;
+  try {
+    const res = await fetch(`/api/excel/status/${currentJobId}`);
+    const data = await res.json();
+    if (!data.success) return;
+    const j = data.job;
+    const pct = Math.round((j.current / j.total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressFill').textContent = pct + '%';
+    document.getElementById('statSuccess').textContent = j.success;
+    document.getElementById('statFailed').textContent = j.failed;
+    document.getElementById('statSkipped').textContent = j.skipped || 0;
+
+    const lc = document.getElementById('logsContainer');
+    lc.innerHTML = j.logs.slice().reverse().map(l => {
+      const icon = l.status === 'success' ? '✅' : l.status === 'failed' ? '❌' : l.status === 'ai_title' ? '✨' : l.status === 'no_image' ? '🖼️' : '⏭️';
+      const cls = (l.status === 'ai_title' || l.status === 'no_image') ? 'success' : l.status;
+      return `<div class="log-entry ${cls}">${icon} <strong>صف ${l.row}</strong> ${escapeHtml(l.title || l.reason || '')}</div>`;
+    }).join('');
+
+    if (j.status === 'completed' || j.status === 'cancelled' || j.status === 'error') {
+      clearInterval(pollInterval);
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('startBtn').innerHTML = '<i class="fas fa-rocket"></i> بدء جديد';
+      showToast(j.status === 'completed' ? `اكتمل النشر! نجح ${j.success} من ${j.total}` : 'تم إيقاف العملية', j.status === 'completed' ? 'success' : 'error');
+    }
+  } catch (e) {}
+}
+
+async function controlJob(action) {
+  if (!currentJobId) return;
+  await fetch(`/api/excel/control/${currentJobId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action })
+  });
+  if (action === 'pause') {
+    document.getElementById('pauseBtn').style.display = 'none';
+    document.getElementById('resumeBtn').style.display = 'inline-block';
+  } else if (action === 'resume') {
+    document.getElementById('pauseBtn').style.display = 'inline-block';
+    document.getElementById('resumeBtn').style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>
