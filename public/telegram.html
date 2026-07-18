@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="theme-color" content="#0088cc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>نشر في Telegram</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/modern-theme.css">
+    <style>
+        .header { background: linear-gradient(135deg, #2AABEE 0%, #229ED9 50%, #1A8FCA 100%); padding: 65px 20px 45px; text-align: center; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: -40%; left: -20%; width: 250px; height: 250px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; }
+        .header::after { content: ''; position: absolute; bottom: -55%; left: -10%; right: -10%; height: 75%; background: var(--bg-primary); border-radius: 50% 50% 0 0; }
+        .header > * { position: relative; z-index: 2; }
+        .header h1 { font-size: 26px; font-weight: 800; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header p { opacity: 0.85; font-size: 14px; }
+        .back-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); width: 40px; height: 40px; color: #fff; font-size: 18px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); transition: all var(--transition-fast); z-index: 3; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .content { padding: 30px 20px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--accent-blue); font-size: 14px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-subtle); background: var(--bg-input); color: var(--text-primary); font-family: 'Cairo', sans-serif; font-size: 14px; direction: rtl; transition: all var(--transition-fast); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-blue-glow); }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+        .section-title { font-size: 17px; font-weight: 700; margin: 28px 0 14px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        .section-title i { font-size: 18px; }
+        .publish-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #2AABEE, #229ED9); border: none; border-radius: var(--radius-md); color: #fff; font-family: 'Cairo', sans-serif; font-size: 17px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 30px; transition: all var(--transition-fast); box-shadow: var(--shadow-glow-blue); position: relative; overflow: hidden; }
+        .publish-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .publish-btn:hover { transform: translateY(-2px); }
+        .publish-btn:disabled { background: #444; opacity: 0.6; transform: none; box-shadow: none; }
+        .preview-card { background: var(--bg-card); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; border: 1px solid var(--border-subtle); }
+        .preview-title { color: var(--text-secondary); font-size: 14px; margin-bottom: 10px; text-align: center; }
+        .preview-content { white-space: pre-wrap; font-size: 13px; line-height: 1.8; direction: rtl; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(30,30,50,0.9); color: #fff; padding: 14px 28px; border-radius: 16px; display: none; z-index: 2000; font-weight: 600; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); box-shadow: var(--shadow-lg); }
+        .toast.show { display: block; animation: fadeInOut 3s ease-in-out; }
+        .toast.success { background: rgba(16,185,129,0.9); }
+        .toast.error { background: rgba(239,68,68,0.9); }
+        @keyframes fadeInOut { 0%, 100% { opacity: 0; } 10%, 90% { opacity: 1; } }
+        .image-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: var(--radius-md); margin-top: 10px; display: none; }
+        .channel-badges { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .channel-badge { background: linear-gradient(135deg, #2AABEE, #229ED9); padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+        <h1><i class="fab fa-telegram"></i> نشر في Telegram</h1>
+        <p>انشر العروض مباشرة في قناتك</p>
+    </div>
+
+    <div class="content">
+        <div class="section-title"><i class="fas fa-box"></i> معلومات المنتج</div>
+        
+        <div class="form-group">
+            <label>اسم المنتج:</label>
+            <input type="text" id="productTitle" placeholder="أدخل اسم المنتج..." style="margin-bottom: 10px;">
+            <button type="button" id="refineTitleBtn" style="width: 100%; padding: 12px 15px; background: #673AB7; border: none; border-radius: 10px; color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fas fa-magic"></i> تحسين العنوان بالذكاء الاصطناعي
+            </button>
+        </div>
+        
+        <div class="form-group">
+            <label>مقدمة جزائرية (اختياري):</label>
+            <input type="text" id="algerianHook" placeholder="يا خاوتي شوفو هاد لافير..." style="margin-bottom: 10px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button type="button" id="generateHookBtn" style="flex: 1; padding: 12px 15px; background: linear-gradient(135deg, #E91E63, #C2185B); border: none; border-radius: 10px; color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-comment-dots"></i> توليد (AI)
+                </button>
+                <button type="button" id="refineHookBtn" style="flex: 1; padding: 12px 15px; background: linear-gradient(135deg, #2196F3, #1976D2); border: none; border-radius: 10px; color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-magic"></i> تحسين (AI)
+                </button>
+            </div>
+            <p style="font-size: 11px; color: #888; margin-top: 5px;">جملة افتتاحية بالدارجة الجزائرية لجذب المتابعين</p>
+        </div>
+        
+        <div class="form-group">
+            <label>رابط الصورة:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="productImage" placeholder="https://..." style="flex: 1;">
+                <label for="imageUpload" style="margin: 0; cursor: pointer; background: #16213e; border: 2px solid #2d2d44; border-radius: 10px; padding: 12px 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.borderColor='#0088cc'" onmouseout="this.style.borderColor='#2d2d44'">
+                    <i class="fas fa-upload" style="color: #0088cc; font-size: 20px;"></i>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                </label>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button type="button" class="frame-btn" id="frameBtn" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #FF9800, #F57C00); border: none; border-radius: 10px; color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-image"></i> إطار + لوقو
+                </button>
+                <button type="button" id="logoOnlyBtn" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #9C27B0, #7B1FA2); border: none; border-radius: 10px; color: #fff; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-stamp"></i> لوقو فقط
+                </button>
+            </div>
+            <img class="image-preview" id="imagePreview">
+            <input type="hidden" id="framedImageData">
+        </div>
+        
+        <div class="form-group">
+            <label>السعر بعد التخفيض:</label>
+            <input type="text" id="salePrice" placeholder="مثال: 25.00 USD">
+        </div>
+        
+        <div class="form-group">
+            <label>رابط الشراء:</label>
+            <input type="text" id="purchaseLink" placeholder="https://s.click.aliexpress.com/...">
+        </div>
+        
+        <div class="form-group">
+            <label>كوبون (اختياري):</label>
+            <input type="text" id="couponCode" placeholder="أدخل كود الكوبون...">
+        </div>
+        
+        <div class="section-title"><i class="fab fa-telegram"></i> إعدادات النشر</div>
+        
+        <div class="form-group">
+            <label>القناة:</label>
+            <select id="channelSelect">
+                <option value="both">كلا القناتين (مقترح)</option>
+                <option value="1">القناة الأولى</option>
+                <option value="2">القناة الثانية</option>
+            </select>
+            <div class="channel-badges" id="channelBadges"></div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-clock"></i> جدولة النشر (اختياري)</div>
+        
+        <div class="form-group">
+            <label>تاريخ ووقت النشر:</label>
+            <input type="datetime-local" id="scheduledTime" style="color-scheme: dark;">
+            <p style="font-size: 11px; color: #888; margin-top: 5px;">اتركه فارغاً للنشر الفوري</p>
+        </div>
+        
+        <div class="preview-card">
+            <div class="preview-title">معاينة الرسالة (قابلة للتعديل)</div>
+            <textarea id="messagePreview" style="width: 100%; min-height: 200px; background: transparent; border: none; color: #fff; font-family: inherit; font-size: 13px; line-height: 1.8; direction: rtl; resize: vertical; padding: 0; overflow: hidden;" spellcheck="false"></textarea>
+        </div>
+        
+        <div style="display:flex;gap:8px;">
+            <button class="publish-btn" id="publishBtn" style="flex:1">
+                <i class="fab fa-telegram"></i> نشر في القناة
+            </button>
+            <button class="publish-btn" id="publishFbBtn" style="flex:1;background:linear-gradient(135deg,#1877F2,#0d65d9)">
+                <i class="fab fa-facebook"></i> نشر على فيسبوك
+            </button>
+        </div>
+
+        <button class="publish-btn" id="scheduleBtn" style="background: linear-gradient(135deg, #FF9800, #F57C00); margin-top: 10px; display: none;">
+            <i class="fas fa-clock"></i> جدولة النشر
+        </button>
+
+        <button class="action-btn copy-btn" id="copyMsgBtn" style="width: 100%; margin-top: 15px; padding: 15px; font-size: 16px;">
+            <i class="fas fa-copy"></i> نسخ نص المنشور كاملاً
+        </button>
+
+        <div id="scheduledPostsSection" style="margin-top: 30px; display: none;">
+            <div class="section-title"><i class="fas fa-calendar-alt"></i> المنشورات المجدولة</div>
+            <div id="scheduledPostsList"></div>
+        </div>
+
+        <a href="/saved-posts.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 30px; padding: 18px; background: linear-gradient(135deg, #9C27B0, #7B1FA2); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; font-size: 16px;">
+            <i class="fas fa-history"></i> المنشورات المحفوظة
+        </a>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const defaultSettings = {
+            prefix: '📢تخفيض لـ',
+            salePrice: '✅السعر بعد التخفيض:',
+            linkText: '📌رابط الشراء :',
+            couponText: '🎁كوبون:',
+            footer: '⚠️ لا تنس استخدام البوت الرسمي لـ AffiliDz للحصول على أفضل العروض والتخفيضات من AliExpress 👇',
+            botLink: '@AffiliDz_bot',
+            hashtags: '#Aliexpress',
+            telegramToken: '',
+            channelId: '',
+            channelId2: '@AffiliDz'
+        };
+
+        let settings = JSON.parse(localStorage.getItem('appSettings')) || { ...defaultSettings };
+
+        const productTitle = document.getElementById('productTitle');
+        const productImage = document.getElementById('productImage');
+        const salePrice = document.getElementById('salePrice');
+        const purchaseLink = document.getElementById('purchaseLink');
+        const couponCode = document.getElementById('couponCode');
+        const channelSelect = document.getElementById('channelSelect');
+        const messagePreview = document.getElementById('messagePreview');
+        const imagePreview = document.getElementById('imagePreview');
+        const channelBadges = document.getElementById('channelBadges');
+        const publishBtn = document.getElementById('publishBtn');
+        const copyMsgBtn = document.getElementById('copyMsgBtn');
+        const frameBtn = document.getElementById('frameBtn');
+        const framedImageData = document.getElementById('framedImageData');
+        const imageUpload = document.getElementById('imageUpload');
+        const toast = document.getElementById('toast');
+        const refineTitleBtn = document.getElementById('refineTitleBtn');
+        const algerianHook = document.getElementById('algerianHook');
+        const generateHookBtn = document.getElementById('generateHookBtn');
+        const refineHookBtn = document.getElementById('refineHookBtn');
+
+        refineHookBtn.onclick = async () => {
+            const currentHook = algerianHook.value.trim();
+            if (!currentHook) {
+                showToast('الرجاء كتابة مقدمة أولاً لتحسينها', 'error');
+                return;
+            }
+
+            refineHookBtn.disabled = true;
+            refineHookBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('/api/ai-refine-title', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: currentHook, isHook: true })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    algerianHook.value = result.refinedTitle;
+                    updatePreview();
+                    showToast('تم تحسين المقدمة ✅', 'success');
+                } else {
+                    showToast(result.error || 'فشل تحسين المقدمة', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            } finally {
+                refineHookBtn.disabled = false;
+                refineHookBtn.innerHTML = '<i class="fas fa-magic"></i> تحسين';
+            }
+        };
+
+        let isFramed = false;
+
+        generateHookBtn.onclick = async () => {
+            const currentTitle = productTitle.value.trim();
+            if (!currentTitle) {
+                showToast('الرجاء إدخال اسم المنتج أولاً', 'error');
+                return;
+            }
+
+            generateHookBtn.disabled = true;
+            generateHookBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('/api/generate-algerian-hook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: currentTitle, price: salePrice.value })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    algerianHook.value = result.hook;
+                    updatePreview();
+                    showToast('تم توليد المقدمة الجزائرية ✅', 'success');
+                } else {
+                    showToast(result.error || 'فشل توليد المقدمة', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            } finally {
+                generateHookBtn.disabled = false;
+                generateHookBtn.innerHTML = '<i class="fas fa-comment-dots"></i> توليد';
+            }
+        };
+
+        refineTitleBtn.onclick = async () => {
+            const currentTitle = productTitle.value.trim();
+            if (!currentTitle) {
+                showToast('الرجاء إدخال اسم المنتج أولاً', 'error');
+                return;
+            }
+
+            refineTitleBtn.disabled = true;
+            refineTitleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('/api/ai-refine-title', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: currentTitle })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    productTitle.value = result.refinedTitle;
+                    updatePreview();
+                    showToast('تم تحسين العنوان ✅', 'success');
+                } else {
+                    showToast(result.error || 'فشل تحسين العنوان', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            } finally {
+                refineTitleBtn.disabled = false;
+                refineTitleBtn.innerHTML = '<i class="fas fa-magic"></i> تحسين';
+            }
+        };
+
+        function updateChannelBadges() {
+            const choice = channelSelect.value;
+            let badges = '';
+            if (choice === '1' || choice === 'both') {
+                badges += `<span class="channel-badge">${settings.channelId || 'القناة 1'}</span>`;
+            }
+            if (choice === '2' || choice === 'both') {
+                badges += `<span class="channel-badge">${settings.channelId2 || '@AffiliDz'}</span>`;
+            }
+            channelBadges.innerHTML = badges;
+        }
+
+        function generateMessage() {
+            const s = settings;
+            const title = productTitle.value || 'اسم المنتج';
+            const salePriceVal = salePrice.value || '0.00';
+            const link = purchaseLink.value || 'https://...';
+            const coupon = couponCode.value;
+            const hook = algerianHook.value;
+
+            let message = '';
+            const quoteParts = [];
+            if (s.seasonOfferEnabled && s.seasonOffer && s.seasonOffer.trim()) {
+                quoteParts.push(s.seasonOffer.trim());
+            }
+            if (hook) quoteParts.push(hook);
+            if (quoteParts.length) {
+                message += `<blockquote>${quoteParts.join('\n')}</blockquote>\n\n`;
+            }
+            message += `${s.prefix} ${title}\n`;
+            message += `${s.salePrice} [ ${salePriceVal} ]\n`;
+            message += `${s.linkText}\n${link}\n`;
+            if (coupon) {
+                const couponCodes = coupon.split(/\s*\|\s*/).map(c => c.trim()).filter(Boolean);
+                const couponValues = couponCodes.map(c => { const m = c.match(/(\d+)$/); return m ? parseInt(m[1], 10) : 0; });
+                const maxVal = Math.max(...couponValues);
+                if (maxVal > 0) message += `${s.couponText} [ $${maxVal} ]\n`;
+                couponCodes.forEach(code => { message += `✂️ <code>${code}</code>\n`; });
+            }
+            message += `\n${s.footer}\n🔗 ${s.botLink}\n\n${s.hashtags}`;
+            
+            return message;
+        }
+
+        function escapeHtmlPreserveBlockquote(text) {
+            const placeholder1 = '\u0001OPEN_BQ\u0001';
+            const placeholder2 = '\u0001CLOSE_BQ\u0001';
+            let s = text.replace(/<blockquote>/gi, placeholder1).replace(/<\/blockquote>/gi, placeholder2);
+            s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return s.replace(new RegExp(placeholder1, 'g'), '<blockquote>').replace(new RegExp(placeholder2, 'g'), '</blockquote>');
+        }
+
+        function updatePreview() {
+            messagePreview.value = generateMessage();
+            autoResizePreview();
+        }
+
+        function autoResizePreview() {
+            messagePreview.style.height = 'auto';
+            messagePreview.style.height = (messagePreview.scrollHeight) + 'px';
+        }
+
+        messagePreview.oninput = autoResizePreview;
+
+        imageUpload.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const base64Image = event.target.result;
+                    imagePreview.src = base64Image;
+                    imagePreview.style.display = 'block';
+                    productImage.value = 'صورة محملة يدوياً'; // Placeholder
+                    framedImageData.value = base64Image;
+                    isFramed = true; // Use framedImageData as the source
+                    frameBtn.innerHTML = '<i class="fas fa-image"></i> إطار + لوقو';
+                    frameBtn.style.background = 'linear-gradient(135deg, #FF9800, #F57C00)';
+                    document.getElementById('logoOnlyBtn').innerHTML = '<i class="fas fa-stamp"></i> لوقو فقط';
+                    document.getElementById('logoOnlyBtn').style.background = 'linear-gradient(135deg, #9C27B0, #7B1FA2)';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        productImage.oninput = () => {
+            const url = productImage.value;
+            if (url) {
+                imagePreview.src = url;
+                imagePreview.style.display = 'block';
+                isFramed = false;
+                framedImageData.value = '';
+                frameBtn.innerHTML = '<i class="fas fa-image"></i> إطار + لوقو';
+                frameBtn.style.background = 'linear-gradient(135deg, #FF9800, #F57C00)';
+                document.getElementById('logoOnlyBtn').innerHTML = '<i class="fas fa-stamp"></i> لوقو فقط';
+                document.getElementById('logoOnlyBtn').style.background = 'linear-gradient(135deg, #9C27B0, #7B1FA2)';
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        };
+
+        frameBtn.onclick = async () => {
+            const imageUrl = isFramed && framedImageData.value ? framedImageData.value : productImage.value;
+            if (!imageUrl || imageUrl === 'صورة محملة يدوياً') {
+                // If it's a manually uploaded image but framedImageData is empty for some reason
+                // though it shouldn't be based on the upload handler
+                if (isFramed && framedImageData.value) {
+                    // correct
+                } else {
+                    showToast('الرجاء إدخال رابط الصورة أو رفع صورة أولاً', 'error');
+                    return;
+                }
+            }
+
+            frameBtn.disabled = true;
+            frameBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إنشاء الإطار...';
+
+            try {
+                const watermarkSettings = {
+                    position: settings.watermarkPosition || 'bottom-right',
+                    size: settings.watermarkSize || 'medium'
+                };
+                
+                const res = await fetch('/api/frame-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageUrl: imageUrl, watermark: watermarkSettings })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    imagePreview.src = result.framedImage;
+                    imagePreview.style.display = 'block';
+                    framedImageData.value = result.framedImage;
+                    isFramed = true;
+                    frameBtn.innerHTML = '<i class="fas fa-check"></i> تم إضافة الإطار';
+                    frameBtn.style.background = '#4CAF50';
+                    showToast('تم إضافة الإطار بنجاح! ✅', 'success');
+                } else {
+                    showToast(result.error || 'فشل في إنشاء الإطار', 'error');
+                    frameBtn.innerHTML = '<i class="fas fa-image"></i> إطار + لوقو';
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+                frameBtn.innerHTML = '<i class="fas fa-image"></i> إطار + لوقو';
+            } finally {
+                frameBtn.disabled = false;
+            }
+        };
+
+        // Logo only button handler
+        const logoOnlyBtn = document.getElementById('logoOnlyBtn');
+        logoOnlyBtn.onclick = async () => {
+            const imageUrl = framedImageData.value || productImage.value;
+            if (!imageUrl || imageUrl === 'صورة محملة يدوياً') {
+                showToast('الرجاء إدخال رابط الصورة أو رفع صورة أولاً', 'error');
+                return;
+            }
+
+            logoOnlyBtn.disabled = true;
+            logoOnlyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const watermarkSettings = {
+                    position: settings.watermarkPosition || 'bottom-right',
+                    size: settings.watermarkSize || 'medium'
+                };
+                
+                const res = await fetch('/api/add-watermark', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageUrl: imageUrl, watermark: watermarkSettings })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    imagePreview.src = result.framedImage;
+                    imagePreview.style.display = 'block';
+                    framedImageData.value = result.framedImage;
+                    isFramed = true;
+                    logoOnlyBtn.innerHTML = '<i class="fas fa-check"></i> تم';
+                    logoOnlyBtn.style.background = '#4CAF50';
+                    showToast('تم إضافة اللوقو بنجاح! ✅', 'success');
+                } else {
+                    showToast(result.error || 'فشل في إضافة اللوقو', 'error');
+                    logoOnlyBtn.innerHTML = '<i class="fas fa-stamp"></i> لوقو فقط';
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+                logoOnlyBtn.innerHTML = '<i class="fas fa-stamp"></i> لوقو فقط';
+            } finally {
+                logoOnlyBtn.disabled = false;
+            }
+        };
+
+        [productTitle, salePrice, purchaseLink, couponCode, algerianHook].forEach(el => {
+            el.oninput = updatePreview;
+        });
+
+        channelSelect.onchange = updateChannelBadges;
+
+        function showToast(msg, type = '') {
+            toast.textContent = msg;
+            toast.className = 'toast show ' + type;
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        publishBtn.onclick = async () => {
+            if (!productTitle.value || !purchaseLink.value) {
+                showToast('الرجاء إدخال اسم المنتج ورابط الشراء', 'error');
+                return;
+            }
+
+            publishBtn.disabled = true;
+            publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+
+            try {
+                const credentials = {
+                    telegramToken: settings.telegramToken || '',
+                    channelId: settings.channelId || '',
+                    channelId2: settings.channelId2 || '@AffiliDz',
+                    channelChoice: channelSelect.value
+                };
+
+                const imageToSend = isFramed && framedImageData.value ? framedImageData.value : (productImage.value || null);
+                
+                const res = await fetch('/api/publish-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: productTitle.value,
+                        price: salePrice.value,
+                        link: purchaseLink.value,
+                        coupon: couponCode.value || null,
+                        image: imageToSend,
+                        settings: settings,
+                        credentials: credentials,
+                        customMessage: escapeHtmlPreserveBlockquote(messagePreview.value),
+                        parseMode: 'HTML'
+                    })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    showToast('تم النشر بنجاح! ✅', 'success');
+                    // إن جلب الخادم صورة تلقائياً، استخدمها للحفظ
+                    if (!imageToSend && result.resolvedImage) {
+                        productImage.value = result.resolvedImage;
+                        imagePreview.src = result.resolvedImage;
+                        imagePreview.style.display = 'block';
+                    }
+                    // Save post automatically after publishing
+                    saveCurrentPost();
+                } else {
+                    showToast(result.error || 'فشل النشر', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = '<i class="fab fa-telegram"></i> نشر في القناة';
+            }
+        };
+
+        document.getElementById('publishFbBtn').onclick = async () => {
+            if (!productTitle.value || !purchaseLink.value) {
+                showToast('الرجاء إدخال اسم المنتج ورابط الشراء', 'error');
+                return;
+            }
+            const fbBtn = document.getElementById('publishFbBtn');
+            fbBtn.disabled = true;
+            fbBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+            try {
+                const imageToSend = isFramed && framedImageData.value ? framedImageData.value : (productImage.value || null);
+                const res = await fetch('/api/publish-facebook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: productTitle.value,
+                        price: salePrice.value,
+                        link: purchaseLink.value,
+                        coupon: couponCode.value || null,
+                        image: imageToSend,
+                        message: messagePreview.value,
+                        settings: settings
+                    })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('تم النشر على فيسبوك! ✅', 'success');
+                } else {
+                    showToast(result.error || 'فشل النشر على فيسبوك', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            } finally {
+                fbBtn.disabled = false;
+                fbBtn.innerHTML = '<i class="fab fa-facebook"></i> نشر على فيسبوك';
+            }
+        };
+
+        copyMsgBtn.onclick = () => {
+            const msg = messagePreview.value; // Copy edited message
+            navigator.clipboard.writeText(msg).then(() => {
+                showToast('تم نسخ نص المنشور ✅', 'success');
+            });
+        };
+
+        // Scheduling functionality
+        const scheduledTime = document.getElementById('scheduledTime');
+        const scheduleBtn = document.getElementById('scheduleBtn');
+        const scheduledPostsSection = document.getElementById('scheduledPostsSection');
+        const scheduledPostsList = document.getElementById('scheduledPostsList');
+
+        scheduledTime.onchange = () => {
+            if (scheduledTime.value) {
+                scheduleBtn.style.display = 'flex';
+                publishBtn.innerHTML = '<i class="fab fa-telegram"></i> نشر الآن';
+            } else {
+                scheduleBtn.style.display = 'none';
+                publishBtn.innerHTML = '<i class="fab fa-telegram"></i> نشر في القناة';
+            }
+        };
+
+        scheduleBtn.onclick = async () => {
+            if (!productTitle.value || !purchaseLink.value) {
+                showToast('الرجاء إدخال اسم المنتج ورابط الشراء', 'error');
+                return;
+            }
+            if (!scheduledTime.value) {
+                showToast('الرجاء تحديد وقت النشر', 'error');
+                return;
+            }
+
+            scheduleBtn.disabled = true;
+            scheduleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الجدولة...';
+
+            try {
+                const credentials = {
+                    telegramToken: settings.telegramToken || '',
+                    channelId: settings.channelId || '',
+                    channelId2: settings.channelId2 || '@AffiliDz',
+                    channelChoice: channelSelect.value
+                };
+
+                const imageToSend = isFramed && framedImageData.value ? framedImageData.value : (productImage.value || null);
+                
+                const res = await fetch('/api/schedule-post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: messagePreview.value, // Use edited message
+                        image: imageToSend,
+                        scheduledTime: new Date(scheduledTime.value).toISOString(),
+                        credentials: credentials
+                    })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    showToast('تمت جدولة المنشور بنجاح! ⏰', 'success');
+                    scheduledTime.value = '';
+                    scheduleBtn.style.display = 'none';
+                    publishBtn.innerHTML = '<i class="fab fa-telegram"></i> نشر في القناة';
+                    loadScheduledPosts();
+                } else {
+                    showToast(result.error || 'فشل الجدولة', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            } finally {
+                scheduleBtn.disabled = false;
+                scheduleBtn.innerHTML = '<i class="fas fa-clock"></i> جدولة النشر';
+            }
+        };
+
+        async function loadScheduledPosts() {
+            try {
+                const res = await fetch('/api/scheduled-posts');
+                const data = await res.json();
+                if (data.success) {
+                    const pendingPosts = data.posts.filter(p => p.status === 'pending');
+                    if (pendingPosts.length > 0) {
+                        scheduledPostsSection.style.display = 'block';
+                        scheduledPostsList.innerHTML = pendingPosts.map(p => `
+                            <div style="background: #16213e; border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span style="color: #FF9800; font-weight: 600;"><i class="fas fa-clock"></i> ${new Date(p.scheduledTime).toLocaleString('ar-EG')}</span>
+                                    <button onclick="cancelScheduledPost('${p.id}')" style="background: #ff4444; border: none; border-radius: 5px; padding: 5px 10px; color: #fff; cursor: pointer; font-size: 12px;"><i class="fas fa-times"></i> إلغاء</button>
+                                </div>
+                                <div style="font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.message.substring(0, 50)}...</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        scheduledPostsSection.style.display = 'none';
+                    }
+                } else {
+                    scheduledPostsSection.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Error loading scheduled posts:', e);
+                scheduledPostsSection.style.display = 'none';
+            }
+        }
+
+        window.cancelScheduledPost = async (id) => {
+            try {
+                await fetch(`/api/scheduled-posts/${id}`, { method: 'DELETE' });
+                showToast('تم إلغاء المنشور المجدول', 'success');
+                loadScheduledPosts();
+            } catch (e) {
+                showToast('خطأ في الإلغاء', 'error');
+            }
+        };
+
+        updateChannelBadges();
+        loadScheduledPosts();
+
+        async function saveCurrentPost() {
+            // تنظيف: لا تحفظ النص النائب "صورة محملة يدوياً" كرابط صورة
+            let imageValue = isFramed && framedImageData.value ? framedImageData.value : (productImage.value || null);
+            if (imageValue === 'صورة محملة يدوياً') imageValue = null;
+
+            const postData = {
+                id: Date.now().toString(),
+                title: productTitle.value,
+                price: salePrice.value,
+                link: purchaseLink.value,
+                coupon: couponCode.value || null,
+                image: imageValue,
+                message: messagePreview.value,
+                hook: algerianHook.value,
+                createdAt: new Date().toISOString()
+            };
+
+            // حفظ في localStorage (المصدر الرئيسي — يبقى بعد إعادة تشغيل السيرفر)
+            try {
+                const existing = JSON.parse(localStorage.getItem('affilidz_saved_posts') || '[]');
+                existing.unshift(postData);
+                localStorage.setItem('affilidz_saved_posts', JSON.stringify(existing));
+            } catch (e) {
+                console.error('Error saving post to localStorage:', e);
+            }
+
+            // حفظ في السيرفر أيضاً (للحملات التلقائية)
+            try {
+                await fetch('/api/saved-posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData)
+                });
+            } catch (e) {
+                console.error('Error saving post to server:', e);
+            }
+        }
+        
+        // Auto-fill from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // إن جاء من زر "تعديل" في صفحة المحفوظات → اقرأ المنشور الكامل من sessionStorage
+        if (urlParams.get('edit') === '1') {
+            try {
+                const raw = sessionStorage.getItem('editPost');
+                if (raw) {
+                    const ep = JSON.parse(raw);
+                    productTitle.value = ep.title || '';
+                    salePrice.value = ep.price || '';
+                    purchaseLink.value = ep.link || '';
+                    if (ep.coupon) couponCode.value = ep.coupon;
+                    if (ep.image) {
+                        if (ep.image.startsWith('data:')) {
+                            // صورة base64 (إطار/لوقو) → ضعها في الحقل المخفي حتى تُرسل عند النشر
+                            framedImageData.value = ep.image;
+                            isFramed = true;
+                            productImage.value = 'صورة محملة يدوياً';
+                        } else {
+                            productImage.value = ep.image;
+                        }
+                        imagePreview.src = ep.image;
+                        imagePreview.style.display = 'block';
+                    }
+                    sessionStorage.removeItem('editPost');
+                }
+            } catch (e) { console.warn('فشل قراءة المنشور للتعديل:', e.message); }
+        } else {
+            if (urlParams.has('title')) productTitle.value = urlParams.get('title');
+            if (urlParams.has('image')) {
+                productImage.value = urlParams.get('image');
+                imagePreview.src = productImage.value;
+                imagePreview.style.display = 'block';
+            }
+            if (urlParams.has('price')) salePrice.value = urlParams.get('price');
+            if (urlParams.has('link')) purchaseLink.value = urlParams.get('link');
+        }
+
+        updatePreview();
+    </script>
+</body>
+</html>
