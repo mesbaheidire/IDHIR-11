@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إحصائيات المتجر - AliOffers DZ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg: #0a0a1a;
+      --card: #12122a;
+      --card2: #1a1a3a;
+      --border: #2a2a4a;
+      --text: #e8e8f0;
+      --muted: #8888aa;
+      --orange: #FF6B35;
+      --orange2: #FF8C5A;
+      --yellow: #FFC107;
+      --green: #4CAF50;
+      --blue: #2196F3;
+      --red: #F44336;
+      --purple: #9C27B0;
+      --pink: #E91E63;
+    }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, #1a0a2e 0%, #16213e 50%, #0f3460 100%);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid var(--orange);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header h1 { font-size: 20px; color: var(--orange); margin-bottom: 4px; }
+    .header p { font-size: 12px; color: var(--muted); }
+    .header .back-btn {
+      position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+      color: var(--orange); text-decoration: none; font-size: 20px;
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      border-radius: 10px; background: rgba(255,107,53,0.1);
+    }
+    .header .refresh-btn {
+      position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+      color: var(--yellow); background: rgba(255,193,7,0.1); border: none;
+      font-size: 18px; width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
+    }
+    .refresh-btn.spinning i { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+
+    .time-filter {
+      display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto;
+      padding-bottom: 5px;
+    }
+    .time-filter button {
+      flex-shrink: 0; padding: 8px 16px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 13px; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .time-filter button.active {
+      background: var(--orange); color: #fff; border-color: var(--orange);
+    }
+
+    .stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;
+    }
+    .stat-card {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      border: 1px solid var(--border); position: relative; overflow: hidden;
+    }
+    .stat-card .icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; margin-bottom: 10px;
+    }
+    .stat-card .value { font-size: 26px; font-weight: 700; margin-bottom: 2px; }
+    .stat-card .label { font-size: 12px; color: var(--muted); }
+    .stat-card .trend {
+      position: absolute; top: 12px; left: 12px;
+      font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    }
+    .trend.up { background: rgba(76,175,80,0.15); color: var(--green); }
+    .trend.down { background: rgba(244,67,54,0.15); color: var(--red); }
+
+    .section { margin-bottom: 20px; }
+    .section-title {
+      font-size: 15px; font-weight: 600; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title i { color: var(--orange); }
+
+    .chart-card {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      border: 1px solid var(--border);
+    }
+    .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+    .bar-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .bar-label { font-size: 12px; color: var(--muted); width: 50px; text-align: left; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 24px; background: var(--card2); border-radius: 6px; overflow: hidden; position: relative; }
+    .bar-fill {
+      height: 100%; border-radius: 6px; transition: width 0.8s ease;
+      display: flex; align-items: center; justify-content: flex-end; padding: 0 8px;
+      font-size: 11px; font-weight: 600; color: #fff; min-width: 30px;
+    }
+
+    .list-card {
+      background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .list-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item .rank {
+      width: 28px; height: 28px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-weight: 700;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .rank.gold { background: linear-gradient(135deg, #FFD700, #FFA000); color: #000; }
+    .rank.silver { background: linear-gradient(135deg, #C0C0C0, #9E9E9E); color: #000; }
+    .rank.bronze { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; }
+    .rank.normal { background: var(--card2); color: var(--muted); }
+    .list-item .info { flex: 1; min-width: 0; }
+    .list-item .info .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-item .info .sub { font-size: 11px; color: var(--muted); }
+    .list-item .count { font-size: 14px; font-weight: 700; color: var(--orange); flex-shrink: 0; }
+
+    .empty-state {
+      text-align: center; padding: 30px; color: var(--muted);
+    }
+    .empty-state i { font-size: 30px; opacity: 0.3; margin-bottom: 8px; display: block; }
+
+    .activity-timeline {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      border: 1px solid var(--border);
+    }
+    .timeline-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-dot {
+      width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0;
+    }
+    .timeline-item .time { font-size: 11px; color: var(--muted); }
+    .timeline-item .desc { font-size: 13px; }
+
+    .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .loading i { font-size: 24px; animation: spin 1s linear infinite; margin-bottom: 10px; display: block; }
+
+    .cleanup-card {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      border: 1px solid var(--border); margin-bottom: 15px;
+    }
+    .cleanup-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+    }
+    .cleanup-header .title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 15px; font-weight: 600;
+    }
+    .cleanup-header .title i { color: var(--red); }
+    .cleanup-toggle {
+      position: relative; width: 44px; height: 24px; cursor: pointer;
+    }
+    .cleanup-toggle input { display: none; }
+    .cleanup-toggle .slider {
+      position: absolute; inset: 0; background: var(--card2);
+      border-radius: 12px; transition: 0.3s; border: 1px solid var(--border);
+    }
+    .cleanup-toggle .slider::before {
+      content: ''; position: absolute; width: 18px; height: 18px;
+      left: 2px; bottom: 2px; background: var(--muted);
+      border-radius: 50%; transition: 0.3s;
+    }
+    .cleanup-toggle input:checked + .slider { background: var(--green); border-color: var(--green); }
+    .cleanup-toggle input:checked + .slider::before { transform: translateX(20px); background: #fff; }
+
+    .cleanup-intervals {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .cleanup-intervals button {
+      flex: 1; padding: 10px 8px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--card2);
+      color: var(--muted); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.3s; text-align: center;
+    }
+    .cleanup-intervals button.active {
+      background: var(--orange); color: #fff; border-color: var(--orange);
+    }
+    .cleanup-intervals button .sub {
+      display: block; font-size: 10px; opacity: 0.7; margin-top: 2px;
+    }
+
+    .cleanup-info {
+      background: var(--card2); border-radius: 10px; padding: 12px;
+      margin-bottom: 12px; font-size: 13px; color: var(--muted);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cleanup-info .count {
+      font-size: 22px; font-weight: 700; color: var(--red); min-width: 40px; text-align: center;
+    }
+
+    .cleanup-actions {
+      display: flex; gap: 8px;
+    }
+    .cleanup-actions button {
+      flex: 1; padding: 10px; border-radius: 10px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .cleanup-actions .btn-delete {
+      background: linear-gradient(135deg, var(--red), #C62828);
+      color: #fff;
+    }
+    .cleanup-actions .btn-delete:hover { opacity: 0.9; transform: translateY(-1px); }
+    .cleanup-actions .btn-delete:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .cleanup-actions .btn-save {
+      background: linear-gradient(135deg, var(--green), #2E7D32);
+      color: #fff;
+    }
+    .cleanup-actions .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .cleanup-toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+      padding: 10px 24px; border-radius: 10px; font-size: 13px;
+      z-index: 9999; transition: transform 0.3s ease; pointer-events: none;
+    }
+    .cleanup-toast.show { transform: translateX(-50%) translateY(0); }
+    .cleanup-toast.success { background: var(--green); color: #fff; }
+    .cleanup-toast.error { background: var(--red); color: #fff; }
+
+    .summary-row {
+      display: flex; gap: 8px; margin-bottom: 15px;
+    }
+    .summary-pill {
+      flex: 1; background: var(--card); border-radius: 12px; padding: 12px 10px;
+      text-align: center; border: 1px solid var(--border);
+    }
+    .summary-pill .val { font-size: 18px; font-weight: 700; }
+    .summary-pill .lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/index.html" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+    <button class="refresh-btn" onclick="loadAnalytics()"><i class="fas fa-sync-alt"></i></button>
+    <h1><i class="fas fa-chart-line"></i> إحصائيات المتجر</h1>
+    <p>لوحة تحكم AliOffers DZ</p>
+  </div>
+
+  <div class="container">
+    <div class="time-filter">
+      <button class="active" data-period="today" onclick="setPeriod('today',this)">اليوم</button>
+      <button data-period="week" onclick="setPeriod('week',this)">هذا الأسبوع</button>
+      <button data-period="month" onclick="setPeriod('month',this)">هذا الشهر</button>
+      <button data-period="all" onclick="setPeriod('all',this)">الكل</button>
+    </div>
+
+    <div class="cleanup-card" id="cleanupSection">
+      <div class="cleanup-header">
+        <div class="title"><i class="fas fa-broom"></i> حذف المنشورات القديمة</div>
+        <label class="cleanup-toggle">
+          <input type="checkbox" id="cleanupEnabled" onchange="toggleCleanup()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="cleanup-intervals" id="cleanupIntervals">
+        <button data-hours="24" onclick="selectInterval(24, this)">24 ساعة<span class="sub">يوم واحد</span></button>
+        <button data-hours="48" onclick="selectInterval(48, this)">48 ساعة<span class="sub">يومين</span></button>
+        <button class="active" data-hours="72" onclick="selectInterval(72, this)">3 أيام<span class="sub">72 ساعة</span></button>
+      </div>
+      <div class="cleanup-info" id="cleanupInfo">
+        <div class="count" id="cleanupCount">-</div>
+        <div>منشور سيتم حذفه من أصل <strong id="cleanupTotal">0</strong> منشور</div>
+      </div>
+      <div class="cleanup-actions">
+        <button class="btn-save" onclick="saveCleanupSettings()"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+        <button class="btn-delete" id="cleanupNowBtn" onclick="cleanupNow()"><i class="fas fa-trash-alt"></i> حذف الآن</button>
+      </div>
+    </div>
+
+    <div class="cleanup-card" id="popupSection" style="margin-top:15px">
+      <div class="cleanup-header">
+        <div class="title"><i class="fas fa-ad"></i> نافذة الإعلان المنبثقة</div>
+        <label class="cleanup-toggle">
+          <input type="checkbox" id="popupEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">
+        نافذة منبثقة تظهر للزوار عند فتح المتجر، عند الضغط على الصورة يتم توجيههم للرابط.
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">🖼️ صورة النافذة</label>
+        <input type="file" id="popupImgFile" accept="image/*" style="display:none" onchange="uploadPopupImage(event)">
+        <div id="popupImgPreview" style="width:100%;min-height:120px;background:var(--card2);border:2px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:8px" onclick="document.getElementById('popupImgFile').click()">
+          <div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">
+            <i class="fas fa-image" style="font-size:28px;display:block;margin-bottom:8px;color:var(--orange)"></i>
+            اضغط لرفع صورة الإعلان
+          </div>
+        </div>
+        <input type="text" id="popupImgUrl" placeholder="أو الصق رابط صورة مباشر هنا" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px" oninput="refreshPopupPreview()">
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">🔗 الرابط المستهدف (AliExpress)</label>
+        <input type="text" id="popupTargetUrl" placeholder="https://s.click.aliexpress.com/..." style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px;direction:ltr">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">⏱️ ظهور بعد (ثواني)</label>
+          <input type="number" id="popupDelay" min="0" max="60" value="3" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">🔁 التكرار</label>
+          <select id="popupShowOnce" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px">
+            <option value="false">في كل زيارة</option>
+            <option value="true">مرة واحدة فقط</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cleanup-actions">
+        <button class="btn-save" onclick="savePopupConfig()"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+        <button class="btn-delete" style="background:linear-gradient(135deg,var(--blue),#1565C0)" onclick="previewPopup()"><i class="fas fa-eye"></i> معاينة</button>
+      </div>
+    </div>
+
+    <div class="cleanup-card" id="couponsSection" style="margin-top:15px">
+      <div class="cleanup-header">
+        <div class="title"><i class="fas fa-ticket-alt"></i> إدارة كوبونات مركز القسائم</div>
+        <span id="coupCountBadge" style="background:var(--card2);color:var(--muted);padding:4px 10px;border-radius:12px;font-size:12px">0</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">
+        أضف وعدّل كوبونات الخصم التي تظهر في "مركز القسائم" بالصفحة الرئيسية للمتجر.
+      </div>
+
+      <div id="coupAdminList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+        <div style="text-align:center;color:var(--muted);font-size:12px;padding:18px">جاري التحميل...</div>
+      </div>
+
+      <div style="border-top:1px dashed var(--border);padding-top:14px;margin-top:10px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <i class="fas fa-plus-circle" style="color:var(--orange)"></i>
+          <span id="coupFormTitle">إضافة كوبون جديد</span>
+        </div>
+        <input type="hidden" id="caId">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div>
+            <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">💵 قيمة الخصم ($) *</label>
+            <input type="number" step="0.01" id="caAmount" placeholder="25" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px">
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">🛒 الحد الأدنى للطلب ($)</label>
+            <input type="number" step="0.01" id="caMin" placeholder="209" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:13px">
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px">🏷️ كود الكوبون *</label>
+          <input type="text" id="caCode" placeholder="CACD29" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;direction:ltr;text-align:center">
+        </div>
+
+        <div class="cleanup-actions">
+          <button class="btn-save" onclick="saveCouponAdmin()"><i class="fas fa-save"></i> <span id="caSaveLbl">إضافة الكوبون</span></button>
+          <button class="btn-delete" id="caCancelBtn" style="display:none;background:linear-gradient(135deg,#6b7280,#4b5563)" onclick="resetCouponForm()"><i class="fas fa-times"></i> إلغاء</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mainContent">
+      <div class="loading"><i class="fas fa-spinner"></i>جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- POPUP PREVIEW MODAL -->
+  <div id="popupPreviewOv" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:10000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)" onclick="if(event.target===this)closePopupPreview()">
+    <div style="position:relative;max-width:360px;width:100%">
+      <button onclick="closePopupPreview()" style="position:absolute;top:-14px;left:-14px;width:36px;height:36px;border-radius:50%;background:#fff;border:none;color:#333;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:2"><i class="fas fa-times"></i></button>
+      <img id="popupPreviewImg" src="" style="width:100%;max-height:70vh;object-fit:contain;border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.5)">
+      <div style="text-align:center;color:#fff;font-size:12px;margin-top:12px;opacity:.8">معاينة فقط — هكذا تظهر للزوار</div>
+    </div>
+  </div>
+
+  <div class="cleanup-toast" id="cleanupToast"></div>
+
+  <script>
+    let currentPeriod = 'today';
+    let analyticsData = null;
+
+    function setPeriod(period, btn) {
+      currentPeriod = period;
+      document.querySelectorAll('.time-filter button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadAnalytics();
+    }
+
+    async function loadAnalytics() {
+      const refreshBtn = document.querySelector('.refresh-btn');
+      refreshBtn.classList.add('spinning');
+      try {
+        const r = await fetch(`/api/store/analytics?period=${currentPeriod}`);
+        analyticsData = await r.json();
+        if (analyticsData.success) renderAnalytics(analyticsData);
+        else document.getElementById('mainContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>خطأ في تحميل البيانات</p></div>';
+      } catch(e) {
+        document.getElementById('mainContent').innerHTML = '<div class="empty-state"><i class="fas fa-wifi"></i><p>خطأ في الاتصال</p></div>';
+      }
+      refreshBtn.classList.remove('spinning');
+    }
+
+    function renderAnalytics(data) {
+      const s = data.stats;
+      const html = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="icon" style="background:rgba(33,150,243,0.15);color:var(--blue)"><i class="fas fa-eye"></i></div>
+            <div class="value">${formatNum(s.totalVisits)}</div>
+            <div class="label">زيارات المتجر</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon" style="background:rgba(255,193,7,0.15);color:var(--yellow)"><i class="fas fa-search"></i></div>
+            <div class="value">${formatNum(s.totalSearches)}</div>
+            <div class="label">عمليات البحث</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon" style="background:rgba(76,175,80,0.15);color:var(--green)"><i class="fas fa-mouse-pointer"></i></div>
+            <div class="value">${formatNum(s.totalClicks)}</div>
+            <div class="label">نقرات المنتجات</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon" style="background:rgba(156,39,176,0.15);color:var(--purple)"><i class="fas fa-box-open"></i></div>
+            <div class="value">${formatNum(s.totalProducts)}</div>
+            <div class="label">منتجات محفوظة</div>
+          </div>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-pill">
+            <div class="val" style="color:var(--orange)">${formatNum(s.uniqueVisitors)}</div>
+            <div class="lbl">زوار فريدين</div>
+          </div>
+          <div class="summary-pill">
+            <div class="val" style="color:var(--blue)">${s.avgSearchesPerVisit}</div>
+            <div class="lbl">بحث/زيارة</div>
+          </div>
+          <div class="summary-pill">
+            <div class="val" style="color:var(--green)">${s.clickRate}%</div>
+            <div class="lbl">معدل النقر</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><i class="fas fa-chart-bar"></i> النشاط حسب الساعة</div>
+          <div class="chart-card">
+            <div class="bar-chart">${renderHourlyChart(s.hourlyActivity || [])}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><i class="fas fa-fire"></i> أكثر الكلمات بحثاً</div>
+          ${renderTopList(s.topSearches, 'search')}
+        </div>
+
+        <div class="section">
+          <div class="section-title"><i class="fas fa-star"></i> أكثر المنتجات نقراً</div>
+          ${renderTopList(s.topProducts, 'product')}
+        </div>
+
+        <div class="section">
+          <div class="section-title"><i class="fas fa-tags"></i> التصنيفات الأكثر استخداماً</div>
+          ${renderTopList(s.topCategories, 'category')}
+        </div>
+
+        <div class="section">
+          <div class="section-title"><i class="fas fa-clock"></i> آخر النشاطات</div>
+          ${renderTimeline(s.recentActivity || [])}
+        </div>
+      `;
+      document.getElementById('mainContent').innerHTML = html;
+    }
+
+    function renderHourlyChart(hourly) {
+      if (!hourly.length) return '<div class="empty-state"><i class="fas fa-chart-bar"></i><p>لا توجد بيانات</p></div>';
+      const max = Math.max(...hourly.map(h => h.count), 1);
+      const colors = ['var(--blue)', 'var(--green)', 'var(--yellow)', 'var(--orange)', 'var(--purple)', 'var(--pink)'];
+      return hourly.map((h, i) => `
+        <div class="bar-row">
+          <div class="bar-label">${h.hour}:00</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${Math.max((h.count/max)*100, 5)}%;background:${colors[i%colors.length]}">${h.count}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTopList(items, type) {
+      if (!items || !items.length) return '<div class="list-card"><div class="empty-state"><i class="fas fa-inbox"></i><p>لا توجد بيانات بعد</p></div></div>';
+      return `<div class="list-card">${items.slice(0,10).map((item, i) => {
+        const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+        const icon = type==='search'?'fa-search':type==='product'?'fa-shopping-bag':'fa-tag';
+        return `<div class="list-item">
+          <div class="rank ${rankClass}">${i+1}</div>
+          <div class="info">
+            <div class="name">${esc(item.name)}</div>
+            <div class="sub"><i class="fas ${icon}"></i> ${type==='search'?'بحث':type==='product'?'منتج':'تصنيف'}</div>
+          </div>
+          <div class="count">${formatNum(item.count)}</div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+
+    function renderTimeline(activities) {
+      if (!activities.length) return '<div class="activity-timeline"><div class="empty-state"><i class="fas fa-clock"></i><p>لا توجد نشاطات</p></div></div>';
+      const typeColors = { visit: 'var(--blue)', search: 'var(--yellow)', click: 'var(--green)', save: 'var(--purple)' };
+      const typeNames = { visit: 'زيارة', search: 'بحث', click: 'نقر', save: 'حفظ' };
+      return `<div class="activity-timeline">${activities.slice(0,15).map(a => `
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background:${typeColors[a.type]||'var(--muted)'}"></div>
+          <div style="flex:1">
+            <div class="desc">${typeNames[a.type]||a.type}: <strong>${esc(a.detail||'')}</strong></div>
+            <div class="time">${timeAgo(a.timestamp)}</div>
+          </div>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function formatNum(n) {
+      if (!n) return '0';
+      if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const diff = Date.now() - new Date(ts).getTime();
+      const mins = Math.floor(diff/60000);
+      if (mins < 1) return 'الآن';
+      if (mins < 60) return `منذ ${mins} دقيقة`;
+      const hours = Math.floor(mins/60);
+      if (hours < 24) return `منذ ${hours} ساعة`;
+      const days = Math.floor(hours/24);
+      return `منذ ${days} يوم`;
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    let cleanupInterval = 72;
+
+    async function loadCleanupSettings() {
+      try {
+        const r = await fetch('/api/store/cleanup-settings');
+        const d = await r.json();
+        if (d.success && d.settings) {
+          document.getElementById('cleanupEnabled').checked = d.settings.enabled;
+          cleanupInterval = d.settings.interval || 72;
+          document.querySelectorAll('.cleanup-intervals button').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.hours) === cleanupInterval);
+          });
+        }
+      } catch (e) {}
+      updateCleanupPreview();
+    }
+
+    function selectInterval(hours, btn) {
+      cleanupInterval = hours;
+      document.querySelectorAll('.cleanup-intervals button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateCleanupPreview();
+    }
+
+    function toggleCleanup() {
+      updateCleanupPreview();
+    }
+
+    async function updateCleanupPreview() {
+      try {
+        const r = await fetch(`/api/store/cleanup-preview?hours=${cleanupInterval}`);
+        const d = await r.json();
+        document.getElementById('cleanupCount').textContent = d.toDelete || 0;
+        document.getElementById('cleanupTotal').textContent = d.total || 0;
+        const btn = document.getElementById('cleanupNowBtn');
+        btn.disabled = !d.toDelete;
+      } catch (e) {}
+    }
+
+    async function saveCleanupSettings() {
+      try {
+        const enabled = document.getElementById('cleanupEnabled').checked;
+        const r = await fetch('/api/store/cleanup-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled, interval: cleanupInterval })
+        });
+        const d = await r.json();
+        if (d.success) showCleanupToast('تم حفظ إعدادات الحذف التلقائي', 'success');
+        else showCleanupToast('فشل الحفظ', 'error');
+      } catch (e) {
+        showCleanupToast('خطأ في الاتصال', 'error');
+      }
+    }
+
+    async function cleanupNow() {
+      const count = document.getElementById('cleanupCount').textContent;
+      if (count === '0' || count === '-') return;
+      if (!confirm(`سيتم حذف ${count} منشور قديم نهائياً. هل أنت متأكد؟`)) return;
+      const btn = document.getElementById('cleanupNowBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحذف...';
+      try {
+        const r = await fetch('/api/store/auto-cleanup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hours: cleanupInterval })
+        });
+        const d = await r.json();
+        if (d.success) {
+          showCleanupToast(`تم حذف ${d.deleted} منشور بنجاح`, 'success');
+          updateCleanupPreview();
+          loadAnalytics();
+        } else {
+          showCleanupToast('فشل الحذف: ' + (d.error || ''), 'error');
+        }
+      } catch (e) {
+        showCleanupToast('خطأ في الاتصال', 'error');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-trash-alt"></i> حذف الآن';
+    }
+
+    function showCleanupToast(msg, type) {
+      const t = document.getElementById('cleanupToast');
+      t.textContent = msg;
+      t.className = 'cleanup-toast ' + type + ' show';
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ===== POPUP AD SETTINGS =====
+    async function loadPopupConfig(){
+      try{
+        const r=await fetch('/api/store/popup-config');
+        const d=await r.json();
+        if(d.success&&d.config){
+          const c=d.config;
+          document.getElementById('popupEnabled').checked=!!c.enabled;
+          document.getElementById('popupImgUrl').value=c.imageUrl||'';
+          document.getElementById('popupTargetUrl').value=c.targetUrl||'';
+          document.getElementById('popupDelay').value=c.delaySeconds||3;
+          document.getElementById('popupShowOnce').value=c.showOnce?'true':'false';
+          refreshPopupPreview();
+        }
+      }catch(e){}
+    }
+
+    function refreshPopupPreview(){
+      const url=document.getElementById('popupImgUrl').value.trim();
+      const box=document.getElementById('popupImgPreview');
+      if(url){
+        box.innerHTML=`<img src="${url}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px" onerror="this.parentElement.innerHTML='<div style=&quot;padding:20px;color:var(--red)&quot;>فشل تحميل الصورة</div>'">`;
+      }else{
+        box.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px"><i class="fas fa-image" style="font-size:28px;display:block;margin-bottom:8px;color:var(--orange)"></i>اضغط لرفع صورة الإعلان</div>`;
+      }
+    }
+
+    async function uploadPopupImage(e){
+      const file=e.target.files[0];
+      if(!file)return;
+      const fd=new FormData();
+      fd.append('image',file);
+      showCleanupToast('جاري رفع الصورة...','success');
+      try{
+        const r=await fetch('/api/upload-popup-image',{method:'POST',body:fd});
+        const d=await r.json();
+        if(d.success&&d.imageUrl){
+          document.getElementById('popupImgUrl').value=d.imageUrl;
+          refreshPopupPreview();
+          showCleanupToast('تم رفع الصورة بنجاح','success');
+        }else{
+          showCleanupToast('فشل رفع الصورة','error');
+        }
+      }catch(err){
+        showCleanupToast('خطأ في الاتصال','error');
+      }
+    }
+
+    async function savePopupConfig(){
+      const cfg={
+        enabled:document.getElementById('popupEnabled').checked,
+        imageUrl:document.getElementById('popupImgUrl').value.trim(),
+        targetUrl:document.getElementById('popupTargetUrl').value.trim(),
+        delaySeconds:parseInt(document.getElementById('popupDelay').value)||3,
+        showOnce:document.getElementById('popupShowOnce').value==='true'
+      };
+      if(cfg.enabled&&!cfg.imageUrl){
+        showCleanupToast('يجب إضافة صورة للنافذة','error');return;
+      }
+      if(cfg.enabled&&!cfg.targetUrl){
+        showCleanupToast('يجب إضافة رابط مستهدف','error');return;
+      }
+      try{
+        const r=await fetch('/api/store/popup-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
+        const d=await r.json();
+        if(d.success){showCleanupToast('تم حفظ إعدادات النافذة','success');}
+        else{showCleanupToast('فشل الحفظ','error');}
+      }catch(e){showCleanupToast('خطأ في الاتصال','error');}
+    }
+
+    function previewPopup(){
+      const url=document.getElementById('popupImgUrl').value.trim();
+      if(!url){showCleanupToast('أضف صورة أولاً','error');return;}
+      document.getElementById('popupPreviewImg').src=url;
+      document.getElementById('popupPreviewOv').style.display='flex';
+    }
+    function closePopupPreview(){
+      document.getElementById('popupPreviewOv').style.display='none';
+    }
+
+    // ===== COUPONS ADMIN =====
+    let coupAdminList=[];
+
+    async function loadCouponsAdmin(){
+      try{
+        const r=await fetch('/api/store/coupons');
+        const d=await r.json();
+        coupAdminList=d.products||[];
+        renderCouponsAdmin();
+      }catch(e){
+        document.getElementById('coupAdminList').innerHTML='<div style="text-align:center;color:var(--red);font-size:12px;padding:14px">تعذّر تحميل الكوبونات</div>';
+      }
+    }
+
+    function renderCouponsAdmin(){
+      const box=document.getElementById('coupAdminList');
+      const badge=document.getElementById('coupCountBadge');
+      badge.textContent=coupAdminList.length;
+      if(coupAdminList.length===0){
+        box.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:18px"><i class="fas fa-ticket-alt" style="display:block;font-size:30px;opacity:.25;margin-bottom:6px"></i>لا توجد كوبونات بعد. أضف أول واحد بالأسفل.</div>';
+        return;
+      }
+      box.innerHTML=coupAdminList.map(c=>{
+        return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;align-items:center;gap:10px">
+          <div style="background:#fee2e2;color:#dc2626;border-radius:8px;padding:8px 10px;text-align:center;min-width:72px">
+            <div style="font-size:14px;font-weight:900;line-height:1">US $${c.amount_off||0}</div>
+            <div style="font-size:9px;font-weight:700;opacity:.85">OFF</div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:900;color:var(--text);letter-spacing:1px;direction:ltr;text-align:right">${escHtml(c.code||'')}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">orders US $${c.min_order||0}+</div>
+          </div>
+          <button onclick="editCouponAdmin('${escAttr(c.id)}')" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 9px;font-family:inherit;font-size:11px;cursor:pointer" title="تعديل"><i class="fas fa-pen"></i></button>
+          <button onclick="deleteCouponAdmin('${escAttr(c.id)}')" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:7px 9px;font-family:inherit;font-size:11px;cursor:pointer" title="حذف"><i class="fas fa-trash"></i></button>
+        </div>`;
+      }).join('');
+    }
+
+    function escHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    function escAttr(s){return escHtml(s)}
+
+    function editCouponAdmin(id){
+      const c=coupAdminList.find(x=>x.id===id);
+      if(!c)return;
+      document.getElementById('caId').value=c.id;
+      document.getElementById('caCode').value=c.code||'';
+      document.getElementById('caAmount').value=c.amount_off||'';
+      document.getElementById('caMin').value=c.min_order||'';
+      document.getElementById('coupFormTitle').textContent='تعديل الكوبون';
+      document.getElementById('caSaveLbl').textContent='حفظ التعديلات';
+      document.getElementById('caCancelBtn').style.display='inline-flex';
+      document.getElementById('couponsSection').scrollIntoView({behavior:'smooth',block:'end'});
+    }
+
+    function resetCouponForm(){
+      ['caId','caCode','caAmount','caMin'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('coupFormTitle').textContent='إضافة كوبون جديد';
+      document.getElementById('caSaveLbl').textContent='إضافة الكوبون';
+      document.getElementById('caCancelBtn').style.display='none';
+    }
+
+    async function saveCouponAdmin(){
+      const id=document.getElementById('caId').value;
+      const body={
+        code:document.getElementById('caCode').value.trim().toUpperCase(),
+        amount_off:document.getElementById('caAmount').value,
+        min_order:document.getElementById('caMin').value
+      };
+      if(!body.code||!body.amount_off){showCleanupToast('كود الكوبون وقيمة الخصم مطلوبان','error');return}
+      try{
+        const url=id?('/api/store/coupons/'+encodeURIComponent(id)):'/api/store/coupons';
+        const r=await fetch(url,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        const d=await r.json();
+        if(!d.success){showCleanupToast(d.error||'فشل الحفظ','error');return}
+        showCleanupToast(id?'تم تحديث الكوبون':'تمت إضافة الكوبون','success');
+        resetCouponForm();
+        loadCouponsAdmin();
+      }catch(e){showCleanupToast('خطأ في الاتصال','error')}
+    }
+
+    async function deleteCouponAdmin(id){
+      if(!confirm('هل تريد حذف هذا الكوبون؟'))return;
+      try{
+        const r=await fetch('/api/store/coupons/'+encodeURIComponent(id),{method:'DELETE'});
+        const d=await r.json();
+        if(!d.success){showCleanupToast('فشل الحذف','error');return}
+        showCleanupToast('تم الحذف','success');
+        loadCouponsAdmin();
+      }catch(e){showCleanupToast('خطأ في الاتصال','error')}
+    }
+
+    loadAnalytics();
+    loadCleanupSettings();
+    loadPopupConfig();
+    loadCouponsAdmin();
+  </script>
+</body>
+</html>
