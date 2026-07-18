@@ -1,0 +1,16 @@
+node_modules/
+uploads/
+.env
+*.log
+gemini_keys.json
+saved_posts.json
+spy_config.json
+spy_log.json
+spy_session.json
+spy_processed.json
+spy_auth_state.json
+
+# Spy image cache
+public/spy-cache/
+!public/spy-cache/.gitkeep
+package-lock.json
