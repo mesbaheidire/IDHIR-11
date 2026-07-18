@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>اكتشف المنتجات الرابحة - AffiliDz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/modern-theme.css">
+    <style>
+        .header { 
+            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #5B21B6 100%); 
+            padding: 70px 20px 60px; 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden;
+        }
+        .header::before { content: ''; position: absolute; top: -40%; right: -25%; width: 280px; height: 280px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; }
+        .header::after { content: ''; position: absolute; bottom: -55%; left: -10%; right: -10%; height: 75%; background: var(--bg-primary); border-radius: 50% 50% 0 0; }
+        .header > * { position: relative; z-index: 2; }
+        .header h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header p { opacity: 0.85; font-size: 14px; }
+        
+        .top-actions {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .back-btn { 
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: var(--radius-sm); width: 42px; height: 42px; 
+            color: #fff; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-fast);
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        .content { padding: 20px; margin-top: -30px; position: relative; z-index: 10; }
+        
+        .filter-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .filter-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-purple);
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .category-btn {
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            color: var(--text-secondary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+        .category-btn:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+        .category-btn.active { background: linear-gradient(135deg, #7C3AED, #6D28D9); border-color: var(--accent-purple); color: #fff; }
+        .category-btn i { display: block; font-size: 20px; margin-bottom: 5px; }
+        
+        .price-range {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .price-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+        .price-input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-purple-glow); }
+        .price-input::placeholder { color: var(--text-muted); }
+        
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--accent-purple-glow);
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: var(--radius-md);
+            padding: 12px 15px;
+            margin-bottom: 15px;
+        }
+        .ai-toggle label { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .ai-toggle label i { color: var(--accent-purple); }
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.08);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--accent-purple); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); background: #fff; }
+        
+        .search-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-glow-purple);
+            position: relative;
+            overflow: hidden;
+        }
+        .search-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .search-btn:hover { transform: translateY(-1px); }
+        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none; }
+        
+        .ai-suggest-btn {
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 15px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            transition: all var(--transition-fast);
+        }
+        .ai-suggest-btn:hover { transform: translateY(-1px); }
+        
+        .keywords-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 12px 15px;
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            margin-bottom: 10px;
+            direction: ltr;
+            transition: all var(--transition-fast);
+        }
+        .keywords-input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-purple-glow); }
+        .keywords-input::placeholder { color: var(--text-muted); }
+        
+        .suggested-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .keyword-tag {
+            background: var(--accent-purple-glow);
+            border: 1px solid rgba(124,58,237,0.25);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            color: #A78BFA;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .keyword-tag:hover { background: var(--accent-purple); color: #fff; border-color: var(--accent-purple); }
+        
+        .section-title { 
+            font-size: 18px; 
+            font-weight: 700; 
+            margin: 25px 0 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        .section-title span { color: var(--accent-purple); }
+        
+        .loading { text-align: center; padding: 40px; display: none; }
+        .loading.show { display: block; }
+        .loading i { font-size: 40px; color: var(--accent-purple); animation: spin 1s linear infinite; }
+        
+        .results { display: none; }
+        .results.show { display: block; }
+        
+        .products-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .product-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            transition: all var(--transition-normal);
+        }
+        .product-card:hover { border-color: rgba(255,255,255,0.1); }
+        .product-card.ai-ranked {
+            border-color: rgba(124,58,237,0.3);
+            box-shadow: 0 0 20px var(--accent-purple-glow);
+        }
+        .product-card.ai-ranked::before {
+            content: "مقترح بالذكاء الاصطناعي";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            color: #fff;
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .product-image-container {
+            position: relative;
+            width: 100px;
+            min-width: 100px;
+        }
+        .product-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: var(--bg-input);
+        }
+        .product-discount-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .product-title {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .product-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .product-meta i { color: var(--accent-purple); }
+        .product-price-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .product-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-orange);
+        }
+        .product-original-price {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: #fff;
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+        .action-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .action-btn:hover { transform: translateY(-1px); }
+        .action-btn:active { transform: scale(0.95); }
+        .use-btn { background: linear-gradient(135deg, #FF7043, #F4511E); }
+        .analyze-btn { background: linear-gradient(135deg, #7C3AED, #6D28D9); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 60px; margin-bottom: 15px; opacity: 0.15; }
+        .empty-state p { font-size: 15px; font-weight: 600; }
+        
+        .toast { 
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            background: rgba(30,30,50,0.9); color: #fff; padding: 14px 28px; border-radius: 16px; 
+            display: none; z-index: 5000; font-size: 14px; font-weight: 600; 
+            backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); box-shadow: var(--shadow-lg);
+        }
+        .toast.show { display: block; animation: fadeInUp 0.3s ease-out; }
+        @keyframes fadeInUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0,0,0,0.7); z-index: 4000; overflow-y: auto; padding: 20px; 
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .modal.show { display: flex; align-items: center; justify-content: center; animation: fadeInUp 0.3s ease-out; }
+        .modal-content { 
+            background: var(--bg-card); width: 100%; max-width: 400px; border-radius: var(--radius-xl); 
+            padding: 25px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-lg);
+        }
+        .modal-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px; 
+        }
+        .modal-header h3 { color: var(--accent-purple); font-size: 18px; }
+        .modal-close { 
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: 18px; cursor: pointer; width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast);
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.1); }
+        
+        .analysis-score {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 28px;
+            font-weight: 800;
+        }
+        .score-label { font-size: 14px; color: var(--text-secondary); }
+        
+        .analysis-pros {
+            background: var(--accent-green-glow);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .analysis-pros h4 { color: var(--accent-green); font-size: 14px; margin-bottom: 10px; }
+        .analysis-pros ul { list-style: none; }
+        .analysis-pros li { font-size: 13px; padding: 5px 0; display: flex; align-items: center; gap: 8px; }
+        .analysis-pros li::before { content: "✓"; color: var(--accent-green); font-weight: bold; }
+        
+        .analysis-hook {
+            background: var(--accent-purple-glow);
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: var(--radius-md);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .analysis-hook h4 { color: var(--accent-purple); font-size: 14px; margin-bottom: 10px; }
+        .analysis-hook p { font-size: 14px; line-height: 1.6; }
+        
+        .copy-hook-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-glow-purple);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="top-actions">
+            <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+            <div></div>
+        </div>
+        <h1><i class="fas fa-magic"></i> اكتشف المنتجات الرابحة</h1>
+        <p>ابحث بذكاء عن أفضل الصفقات للسوق الجزائري</p>
+    </div>
+
+    <div class="content">
+        <div class="filter-card">
+            <div class="filter-title"><i class="fas fa-filter"></i> تصفية البحث</div>
+            
+            <div class="categories-grid">
+                <button class="category-btn" data-category="electronics">
+                    <i class="fas fa-mobile-alt"></i>
+                    إلكترونيات
+                </button>
+                <button class="category-btn" data-category="fashion">
+                    <i class="fas fa-tshirt"></i>
+                    أزياء
+                </button>
+                <button class="category-btn" data-category="home">
+                    <i class="fas fa-home"></i>
+                    منزل
+                </button>
+                <button class="category-btn" data-category="beauty">
+                    <i class="fas fa-spa"></i>
+                    جمال
+                </button>
+                <button class="category-btn" data-category="kids">
+                    <i class="fas fa-child"></i>
+                    أطفال
+                </button>
+                <button class="category-btn" data-category="sports">
+                    <i class="fas fa-running"></i>
+                    رياضة
+                </button>
+            </div>
+            
+            <div class="price-range">
+                <input type="number" class="price-input" id="minPrice" placeholder="الحد الأدنى $" value="1">
+                <span style="color: #666; align-self: center;">—</span>
+                <input type="number" class="price-input" id="maxPrice" placeholder="الحد الأقصى $" value="30">
+            </div>
+            
+            <button class="ai-suggest-btn" id="suggestKeywordsBtn">
+                <i class="fas fa-lightbulb"></i> اقترح كلمات بحث ذكية
+            </button>
+            
+            <input type="text" class="keywords-input" id="keywordsInput" placeholder="كلمات البحث (بالإنجليزية)...">
+            
+            <div class="suggested-keywords" id="suggestedKeywords"></div>
+            
+            <div class="ai-toggle">
+                <label><i class="fas fa-brain"></i> ترتيب ذكي بالذكاء الاصطناعي</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="useAI">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            
+            <button class="search-btn" id="searchBtn">
+                <i class="fas fa-search"></i> ابحث عن المنتجات الرابحة
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner"></i>
+            <p style="margin-top: 10px; font-weight: 600;">جاري البحث عن أفضل الصفقات...</p>
+        </div>
+        
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-search"></i>
+            <p>اختر فئة واضغط "ابحث" لاكتشاف المنتجات الرابحة</p>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="section-title">
+                <i class="fas fa-fire" style="color: #FF6B35;"></i>
+                <span id="resultsCount">0</span> منتج مقترح
+            </div>
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </div>
+    
+    <div class="modal" id="analysisModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-line"></i> تحليل المنتج</h3>
+                <button class="modal-close" onclick="closeAnalysisModal()">&times;</button>
+            </div>
+            <div id="analysisContent"></div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let selectedCategory = null;
+        let currentProducts = [];
+        
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedCategory = this.dataset.category;
+            });
+        });
+        
+        document.getElementById('suggestKeywordsBtn').addEventListener('click', async function() {
+            if (!selectedCategory) {
+                showToast('اختر فئة أولاً');
+                return;
+            }
+            
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الاقتراح...';
+            
+            try {
+                const response = await fetch('/api/ai-suggest-keywords', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category: selectedCategory })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.keywords) {
+                    const container = document.getElementById('suggestedKeywords');
+                    container.innerHTML = data.keywords.map(kw => 
+                        `<span class="keyword-tag" onclick="useKeyword('${kw}')">${kw}</span>`
+                    ).join('');
+                }
+            } catch (error) {
+                showToast('فشل اقتراح الكلمات');
+            }
+            
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-lightbulb"></i> اقترح كلمات بحث ذكية';
+        });
+        
+        function useKeyword(keyword) {
+            const input = document.getElementById('keywordsInput');
+            input.value = keyword;
+        }
+        
+        document.getElementById('searchBtn').addEventListener('click', async function() {
+            const minPrice = document.getElementById('minPrice').value || '1';
+            const maxPrice = document.getElementById('maxPrice').value || '50';
+            const keywords = document.getElementById('keywordsInput').value;
+            const useAI = document.getElementById('useAI').checked;
+            
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('loading').classList.add('show');
+            this.disabled = true;
+            
+            try {
+                const response = await fetch('/api/discover-products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        category: selectedCategory,
+                        keywords: keywords,
+                        minPrice: minPrice,
+                        maxPrice: maxPrice,
+                        limit: '15',
+                        useAI: useAI
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.products) {
+                    currentProducts = data.products;
+                    renderProducts(data.products);
+                    document.getElementById('resultsCount').textContent = data.products.length;
+                    document.getElementById('results').classList.add('show');
+                } else {
+                    showToast(data.error || 'لم يتم العثور على منتجات');
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            } catch (error) {
+                showToast('حدث خطأ في البحث');
+                document.getElementById('emptyState').style.display = 'block';
+            }
+            
+            document.getElementById('loading').classList.remove('show');
+            this.disabled = false;
+        });
+        
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map((p, index) => `
+                <div class="product-card ${p.aiRanked ? 'ai-ranked' : ''}" style="position: relative;">
+                    ${p.aiRanked ? '<div style="position: absolute; top: 8px; right: 8px; background: #9C27B0; color: #fff; font-size: 9px; padding: 3px 8px; border-radius: 10px;"><i class="fas fa-brain"></i> مقترح</div>' : ''}
+                    <div class="product-image-container">
+                        <img class="product-image" src="${p.image_url || '/placeholder.png'}" alt="${p.title}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%231a1a2e%22 width=%22100%22 height=%22100%22/><text fill=%22%23666%22 x=%2250%22 y=%2255%22 text-anchor=%22middle%22 font-size=%2212%22>No Image</text></svg>'">
+                        ${p.discount ? `<span class="product-discount-badge">-${p.discount}%</span>` : ''}
+                    </div>
+                    <div class="product-info">
+                        <div class="product-title">${p.title}</div>
+                        <div class="product-meta">
+                            ${p.orders ? `<span><i class="fas fa-shopping-cart"></i> ${p.orders} طلب</span>` : ''}
+                            ${p.rating ? `<span><i class="fas fa-star"></i> ${p.rating}</span>` : ''}
+                        </div>
+                        <div class="product-price-row">
+                            <span class="product-price">${p.price || p.sale_price} ${p.currency || 'USD'}</span>
+                            ${p.original_price && p.original_price !== p.price ? `<span class="product-original-price">${p.original_price}</span>` : ''}
+                        </div>
+                        <div class="product-actions">
+                            <button class="action-btn use-btn" onclick="useProduct(${index})">
+                                <i class="fas fa-plus"></i> استخدم
+                            </button>
+                            <button class="action-btn analyze-btn" onclick="analyzeProduct(${index})">
+                                <i class="fas fa-chart-line"></i> حلل
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function useProduct(index) {
+            const product = currentProducts[index];
+            if (product && product.product_url) {
+                localStorage.setItem('pendingProductUrl', product.product_url);
+                window.location.href = '/';
+            } else if (product && product.id) {
+                localStorage.setItem('pendingProductUrl', `https://www.aliexpress.com/item/${product.id}.html`);
+                window.location.href = '/';
+            } else {
+                showToast('لا يمكن استخدام هذا المنتج');
+            }
+        }
+        
+        async function analyzeProduct(index) {
+            const product = currentProducts[index];
+            if (!product) return;
+            
+            document.getElementById('analysisContent').innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 30px; color: #9C27B0;"></i><p style="margin-top: 10px;">جاري التحليل...</p></div>';
+            document.getElementById('analysisModal').classList.add('show');
+            
+            try {
+                const response = await fetch('/api/analyze-product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: product.title,
+                        price: product.price || product.sale_price,
+                        category: selectedCategory
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.analysis) {
+                    const analysis = data.analysis;
+                    document.getElementById('analysisContent').innerHTML = `
+                        <div class="analysis-score">
+                            <div class="score-circle">${analysis.score}/10</div>
+                            <div class="score-label">نقطة الجاذبية للسوق الجزائري</div>
+                        </div>
+                        <div class="analysis-pros">
+                            <h4><i class="fas fa-check-circle"></i> المميزات الرئيسية</h4>
+                            <ul>
+                                ${analysis.pros.map(pro => `<li>${pro}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="analysis-hook">
+                            <h4><i class="fas fa-bullhorn"></i> Hook تسويقي مقترح</h4>
+                            <p id="hookText">${analysis.hook}</p>
+                        </div>
+                        <button class="copy-hook-btn" onclick="copyHook()">
+                            <i class="fas fa-copy"></i> نسخ الـ Hook
+                        </button>
+                    `;
+                } else {
+                    document.getElementById('analysisContent').innerHTML = '<p style="text-align: center; color: #ff4444;">فشل التحليل</p>';
+                }
+            } catch (error) {
+                document.getElementById('analysisContent').innerHTML = '<p style="text-align: center; color: #ff4444;">حدث خطأ</p>';
+            }
+        }
+        
+        function closeAnalysisModal() {
+            document.getElementById('analysisModal').classList.remove('show');
+        }
+        
+        function copyHook() {
+            const hookText = document.getElementById('hookText')?.textContent;
+            if (hookText) {
+                navigator.clipboard.writeText(hookText).then(() => {
+                    showToast('تم نسخ الـ Hook');
+                });
+            }
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        window.addEventListener('load', () => {
+            const pendingUrl = localStorage.getItem('pendingProductUrl');
+            if (pendingUrl) {
+                localStorage.removeItem('pendingProductUrl');
+            }
+        });
+    </script>
+</body>
+</html>
