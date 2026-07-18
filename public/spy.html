@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>تجسس على القنوات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/modern-theme.css">
+    <style>
+        .header { background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #4C1D95 100%); padding: 55px 20px 35px; text-align: center; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: -40%; left: -15%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius: 50%; }
+        .header::after { content: ''; position: absolute; bottom: -60%; left: -10%; right: -10%; height: 80%; background: var(--bg-primary); border-radius: 50% 50% 0 0; }
+        .header > * { position: relative; z-index: 2; }
+        .header h1 { font-size: 23px; font-weight: 800; margin-bottom: 3px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header p { opacity: 0.8; font-size: 12px; }
+        .back-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); width: 36px; height: 36px; color: #fff; font-size: 16px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); transition: all var(--transition-fast); z-index: 3; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .content { padding: 15px; max-width: 600px; margin: 0 auto; }
+
+        .status-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 14px 18px; margin: 15px 0; border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+        .status-info { display: flex; align-items: center; gap: 10px; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .status-dot.active { background: var(--accent-green); box-shadow: 0 0 12px var(--accent-green-glow); animation: pulse 2s infinite; }
+        .status-dot.inactive { background: var(--accent-red); }
+        .status-text { font-weight: 700; font-size: 15px; }
+
+        .toggle-btn { padding: 10px 24px; border: none; border-radius: var(--radius-sm); font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all var(--transition-fast); position: relative; overflow: hidden; }
+        .toggle-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .toggle-btn.start { background: linear-gradient(135deg, #10B981, #059669); color: #fff; }
+        .toggle-btn.stop { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; }
+        .toggle-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; color: var(--text-secondary); font-size: 12px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-subtle); background: var(--bg-input); color: var(--text-primary); font-family: 'Cairo', sans-serif; font-size: 13px; direction: rtl; transition: all var(--transition-fast); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-purple-glow); }
+        .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+        .channels-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+        .channel-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); }
+        .channel-item span { font-size: 13px; direction: ltr; }
+        .remove-ch-btn { background: linear-gradient(135deg, #EF4444, #DC2626); border: none; border-radius: 8px; width: 30px; height: 30px; color: #fff; cursor: pointer; font-size: 13px; transition: all var(--transition-fast); }
+        .remove-ch-btn:hover { transform: scale(1.05); }
+        .add-ch-row { display: flex; gap: 8px; }
+        .add-ch-row input { flex: 1; }
+        .add-ch-btn { padding: 11px 16px; background: linear-gradient(135deg, #7C3AED, #6D28D9); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 16px; cursor: pointer; font-weight: 700; transition: all var(--transition-fast); }
+        .add-ch-btn:hover { transform: translateY(-1px); }
+
+        .link-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+        .link-type-option { background: var(--bg-input); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 6px; text-align: center; cursor: pointer; font-size: 11px; font-weight: 600; transition: all var(--transition-fast); }
+        .link-type-option.selected { border-color: var(--accent-purple); background: var(--accent-purple-glow); color: var(--accent-purple); }
+
+        .save-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #7C3AED, #6D28D9); border: none; border-radius: var(--radius-md); color: #fff; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all var(--transition-fast); box-shadow: var(--shadow-glow-purple); position: relative; overflow: hidden; }
+        .save-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .save-btn:hover { transform: translateY(-2px); }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(30,30,50,0.9); color: #fff; padding: 14px 28px; border-radius: 16px; display: none; z-index: 2000; font-weight: 600; font-size: 13px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); box-shadow: var(--shadow-lg); }
+        .toast.show { display: block; animation: fadeInOut 3s ease-in-out; }
+        .toast.success { background: rgba(16,185,129,0.9); }
+        .toast.error { background: rgba(239,68,68,0.9); }
+
+        .info-box { background: var(--accent-purple-glow); border: 1px solid rgba(124,58,237,0.2); border-radius: var(--radius-sm); padding: 10px 12px; margin: 10px 0; font-size: 11px; color: var(--text-secondary); line-height: 1.7; }
+        .info-box i { color: var(--accent-purple); margin-left: 4px; }
+        .info-box a { color: var(--accent-purple); }
+
+        .tab-bar { display: flex; gap: 0; margin: 15px 0; border-radius: var(--radius-md); overflow: hidden; border: 1.5px solid var(--border-subtle); }
+        .tab-btn { flex: 1; padding: 10px; background: var(--bg-card); border: none; color: var(--text-muted); font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all var(--transition-fast); }
+        .tab-btn.active { background: linear-gradient(135deg, #7C3AED, #6D28D9); color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .auth-section { background: var(--bg-card); border-radius: var(--radius-md); padding: 14px; border: 1px solid var(--border-subtle); margin: 10px 0; }
+        .auth-step { display: none; }
+        .auth-step.active { display: block; }
+        .auth-btn { width: 100%; padding: 12px; border: none; border-radius: var(--radius-sm); font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all var(--transition-fast); margin-top: 8px; }
+        .auth-btn.primary { background: linear-gradient(135deg, #7C3AED, #6D28D9); color: #fff; }
+        .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .session-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .session-badge.connected { background: var(--accent-green-glow); color: var(--accent-green); }
+        .session-badge.disconnected { background: rgba(255,152,0,0.15); color: #FF9800; }
+
+        .collapse-section { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 10px; overflow: hidden; }
+        .collapse-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; user-select: none; transition: background var(--transition-fast); }
+        .collapse-header:hover { background: rgba(124,58,237,0.04); }
+        .collapse-header .title { font-size: 14px; font-weight: 700; color: var(--accent-purple); display: flex; align-items: center; gap: 8px; }
+        .collapse-header .title i { font-size: 14px; }
+        .collapse-header .arrow { color: var(--text-muted); font-size: 12px; transition: transform 0.3s; }
+        .collapse-header .arrow.open { transform: rotate(180deg); }
+        .collapse-body { padding: 0 16px 14px; display: none; }
+        .collapse-body.open { display: block; }
+
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-row-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-primary); font-weight: 600; flex: 1; }
+        .toggle-row-label i { color: var(--accent-purple); font-size: 13px; width: 20px; text-align: center; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.08); transition: 0.3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: var(--text-muted); transition: 0.3s; border-radius: 50%; }
+        input:checked + .slider { background: var(--accent-purple); }
+        input:checked + .slider:before { transform: translateX(20px); background: #fff; }
+
+        .inline-fields { display: flex; gap: 10px; }
+        .inline-fields .form-group { flex: 1; margin-bottom: 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+        <h1><i class="fas fa-user-secret"></i> تجسس على القنوات</h1>
+        <p>راقب قنوات المنافسين وانشر العروض تلقائياً</p>
+    </div>
+
+    <div class="content">
+        <div class="status-card">
+            <div class="status-info">
+                <div class="status-dot inactive" id="statusDot"></div>
+                <span class="status-text" id="statusText">متوقف</span>
+            </div>
+            <button class="toggle-btn start" id="toggleBtn" onclick="toggleSpy()">
+                <i class="fas fa-play"></i> تشغيل
+            </button>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('settings')"><i class="fas fa-cog"></i> الإعدادات</button>
+            <button class="tab-btn" onclick="switchTab('template')"><i class="fas fa-filter"></i> الكوبونات</button>
+        </div>
+
+        <div class="tab-content active" id="tab-settings">
+
+            <div class="collapse-section">
+                <div class="collapse-header" onclick="toggleCollapse(this)">
+                    <span class="title"><i class="fas fa-key"></i> تسجيل دخول تيليجرام</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="collapse-body">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        1. اذهب إلى <a href="https://my.telegram.org" target="_blank">my.telegram.org</a>
+                        2. سجّل دخول → 3. اختر "API development tools" → 4. انسخ <strong>API ID</strong> و <strong>API Hash</strong>
+                    </div>
+                    <div class="inline-fields" style="margin-bottom:10px;">
+                        <div class="form-group">
+                            <label>API ID:</label>
+                            <input type="text" id="apiId" placeholder="12345678" style="direction: ltr;">
+                        </div>
+                        <div class="form-group">
+                            <label>API Hash:</label>
+                            <input type="text" id="apiHash" placeholder="0123456789abcdef..." style="direction: ltr;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف (مع رمز الدولة):</label>
+                        <input type="text" id="phoneNumber" placeholder="+213XXXXXXXXX" style="direction: ltr;">
+                    </div>
+                    <div id="sessionStatus" style="margin: 8px 0;"></div>
+                    <div class="auth-section" id="authSection">
+                        <div class="auth-step active" id="auth-step-send">
+                            <button class="auth-btn primary" onclick="sendCode()" id="sendCodeBtn">
+                                <i class="fas fa-paper-plane"></i> إرسال رمز التحقق
+                            </button>
+                        </div>
+                        <div class="auth-step" id="auth-step-code">
+                            <div class="form-group">
+                                <label>رمز التحقق:</label>
+                                <input type="text" id="verifyCode" placeholder="أدخل الرمز من تيليجرام" style="direction: ltr; text-align: center; font-size: 20px; letter-spacing: 8px;">
+                            </div>
+                            <button class="auth-btn primary" onclick="verifyLoginCode()" id="verifyCodeBtn">
+                                <i class="fas fa-check"></i> تأكيد الرمز
+                            </button>
+                        </div>
+                        <div class="auth-step" id="auth-step-password">
+                            <div class="form-group">
+                                <label>كلمة مرور الحساب (Two-Step Verification):</label>
+                                <input type="password" id="twoStepPassword" placeholder="أدخل كلمة المرور">
+                            </div>
+                            <button class="auth-btn primary" onclick="verifyPassword()" id="verifyPassBtn">
+                                <i class="fas fa-lock-open"></i> تأكيد كلمة المرور
+                            </button>
+                        </div>
+                        <div class="auth-step" id="auth-step-done">
+                            <div style="text-align: center; padding: 8px;">
+                                <i class="fas fa-check-circle" style="font-size: 30px; color: #4CAF50; margin-bottom: 6px; display: block;"></i>
+                                <p style="font-weight: 700; color: #4CAF50; font-size: 14px;">تم تسجيل الدخول بنجاح!</p>
+                                <button class="auth-btn" onclick="logoutTelegram()" id="logoutBtn" style="margin-top: 12px; background: linear-gradient(135deg, #f44336, #d32f2f);">
+                                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapse-section">
+                <div class="collapse-header" onclick="toggleCollapse(this)">
+                    <span class="title"><i class="fas fa-cookie-bite"></i> الكوكي وتوكن البوت</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="collapse-body">
+                    <div class="form-group">
+                        <label>🍪 AliExpress Cookie:</label>
+                        <input type="password" id="spyCookieInput" placeholder="الصق الكوكي هنا..." style="direction: ltr;">
+                        <div style="display:flex;gap:8px;margin-top:6px;">
+                            <button class="auth-btn primary" onclick="saveSpyCookie()" style="flex:1;padding:8px;font-size:13px;">
+                                <i class="fas fa-save"></i> حفظ
+                            </button>
+                            <button class="auth-btn" onclick="testSpyCookie()" id="testCookieBtn" style="flex:1;padding:8px;font-size:13px;background:#2d2d3d;border:1px solid #555;">
+                                <i class="fas fa-vial"></i> اختبار
+                            </button>
+                        </div>
+                        <p id="cookieStatus" style="font-size:11px;margin-top:4px;"></p>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>🤖 توكن البوت:</label>
+                        <input type="password" id="spyBotTokenInput" placeholder="123456:ABC-DEF..." style="direction: ltr;">
+                        <button class="auth-btn primary" onclick="saveSpyBotToken()" style="width:100%;margin-top:6px;padding:8px;font-size:13px;">
+                            <i class="fas fa-save"></i> حفظ التوكن
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapse-section">
+                <div class="collapse-header" onclick="toggleCollapse(this)">
+                    <span class="title"><i class="fas fa-eye"></i> القنوات المصدر <span id="sourceCount" style="background:#bb86fc;color:#1a1a2e;padding:1px 8px;border-radius:10px;font-size:11px;margin-right:4px;">0</span></span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="collapse-body">
+                    <div class="channels-list" id="sourceChannelsList" style="max-height:180px;overflow-y:auto;"></div>
+                    <div class="add-ch-row">
+                        <input type="text" id="newSourceChannel" placeholder="@channel أو اسم القناة">
+                        <button class="add-ch-btn" onclick="addChannel('source')"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <textarea id="bulkSourceChannels" placeholder="الصق قائمة قنوات (كل قناة في سطر)" rows="3" style="width:100%;margin-top:8px;background:#2d2d3d;color:#fff;border:1px solid #444;border-radius:8px;padding:8px;font-size:13px;resize:vertical;display:none;"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <button class="add-ch-btn" style="flex:1;border-radius:8px;font-size:12px;padding:8px;" onclick="toggleBulk('source')"><i class="fas fa-list"></i> لصق دفعة</button>
+                        <button class="add-ch-btn" id="bulkSourceBtn" style="flex:1;border-radius:8px;font-size:12px;padding:8px;display:none;background:#4CAF50;" onclick="addBulkChannels('source')"><i class="fas fa-check"></i> إضافة الكل</button>
+                    </div>
+                    <p class="form-hint">يجب أن تكون مشتركاً في هذه القنوات</p>
+                </div>
+            </div>
+
+            <div class="collapse-section">
+                <div class="collapse-header" onclick="toggleCollapse(this)">
+                    <span class="title"><i class="fas fa-bullhorn"></i> القنوات الهدف <span id="targetCount" style="background:#bb86fc;color:#1a1a2e;padding:1px 8px;border-radius:10px;font-size:11px;margin-right:4px;">0</span></span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="collapse-body">
+                    <div class="channels-list" id="targetChannelsList" style="max-height:180px;overflow-y:auto;"></div>
+                    <div class="add-ch-row">
+                        <input type="text" id="newTargetChannel" placeholder="@channel أو معرف القناة">
+                        <button class="add-ch-btn" onclick="addChannel('target')"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <textarea id="bulkTargetChannels" placeholder="الصق قائمة قنوات (كل قناة في سطر)" rows="3" style="width:100%;margin-top:8px;background:#2d2d3d;color:#fff;border:1px solid #444;border-radius:8px;padding:8px;font-size:13px;resize:vertical;display:none;"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:6px;">
+                        <button class="add-ch-btn" style="flex:1;border-radius:8px;font-size:12px;padding:8px;" onclick="toggleBulk('target')"><i class="fas fa-list"></i> لصق دفعة</button>
+                        <button class="add-ch-btn" id="bulkTargetBtn" style="flex:1;border-radius:8px;font-size:12px;padding:8px;display:none;background:#4CAF50;" onclick="addBulkChannels('target')"><i class="fas fa-check"></i> إضافة الكل</button>
+                    </div>
+                    <p class="form-hint">البوت يجب أن يكون مشرف فيها</p>
+                </div>
+            </div>
+
+            <div class="collapse-section">
+                <div class="collapse-header" onclick="toggleCollapse(this)">
+                    <span class="title"><i class="fab fa-facebook"></i> النشر على فيسبوك</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="collapse-body">
+                    <div class="toggle-row">
+                        <label>تفعيل النشر على فيسبوك</label>
+                        <label class="switch"><input type="checkbox" id="facebookEnabled"><span class="slider"></span></label>
+                    </div>
+                    <span id="fbEnvBadge" style="display:none;margin-top:6px;background:#1a3d1a;color:#6bff6b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;"></span>
+                    <div id="fbSettings" style="display:none;margin-top:10px;">
+                        <div id="fbCredsSummary" style="padding:10px;background:#1a1a2e;border-radius:8px;border:1px solid #333;font-size:12px;color:#aaa;margin-bottom:10px;">
+                            <i class="fas fa-shield-alt" style="color:#22c55e;"></i> المعرّفات محمّلة من <b style="color:#fff;">متغيرات البيئة (Render)</b>:<br>
+                            <span style="color:#888;font-size:11px;">FACEBOOK_PAGE_ID</span> &nbsp;•&nbsp; <span style="color:#888;font-size:11px;">FACEBOOK_PAGE_TOKEN</span>
+                            <div id="fbCredsStatus" style="margin-top:6px;font-size:11px;"></div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="verifyFacebook()" style="flex:1;background:#1877F2;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;"><i class="fas fa-check-circle"></i> تحقق</button>
+                            <button onclick="testFacebookPost()" style="flex:1;background:#42b72a;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;"><i class="fas fa-paper-plane"></i> نشر تجريبي</button>
+                        </div>
+                        <div id="fbStatus" style="margin-top:8px;font-size:12px;padding:8px;border-radius:8px;display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapse-section">
+                <div class="collapse-header" onclick="toggleCollapse(this)">
+                    <span class="title"><i class="fas fa-sliders-h"></i> خيارات النشر</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </div>
+                <div class="collapse-body">
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="autoPublish"><i class="fas fa-paper-plane"></i> نشر تلقائي</label>
+                        <label class="switch"><input type="checkbox" id="autoPublish" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="useTypedLinks"><i class="fas fa-link"></i> تحويل حسب النوع</label>
+                        <label class="switch"><input type="checkbox" id="useTypedLinks"><span class="slider"></span></label>
+                    </div>
+                    <div id="linkTypeGrid" class="link-type-grid" style="display: none; margin-bottom: 10px;">
+                        <div class="link-type-option selected" data-type="coin" onclick="selectLinkType('coin')">🪙 Coin</div>
+                        <div class="link-type-option" data-type="point" onclick="selectLinkType('point')">⭐ Point</div>
+                        <div class="link-type-option" data-type="super" onclick="selectLinkType('super')">🔥 Super</div>
+                        <div class="link-type-option" data-type="limit" onclick="selectLinkType('limit')">⚡ Limited</div>
+                        <div class="link-type-option" data-type="ther3" onclick="selectLinkType('ther3')">📦 Bundle</div>
+                    </div>
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="publishDelay"><i class="fas fa-clock"></i> تأخير عشوائي</label>
+                        <label class="switch"><input type="checkbox" id="publishDelay"><span class="slider"></span></label>
+                    </div>
+                    <div id="delayRange" style="display:none; padding: 8px 0;">
+                        <div class="inline-fields">
+                            <div class="form-group">
+                                <label>الحد الأدنى (دقيقة):</label>
+                                <input type="number" id="delayMin" value="1" min="1" max="30" style="direction: ltr;">
+                            </div>
+                            <div class="form-group">
+                                <label>الحد الأقصى (دقيقة):</label>
+                                <input type="number" id="delayMax" value="5" min="1" max="60" style="direction: ltr;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="manualReview"><i class="fas fa-clipboard-check"></i> مراجعة يدوية</label>
+                        <label class="switch"><input type="checkbox" id="manualReview"><span class="slider"></span></label>
+                    </div>
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="applyFrame"><i class="fas fa-image"></i> تطبيق إطار الصور</label>
+                        <label class="switch"><input type="checkbox" id="applyFrame"><span class="slider"></span></label>
+                    </div>
+                    <div id="applyFrameHint" style="display:none; padding: 4px 0 8px; font-size: 12px; color: #9ca3af;">
+                        <i class="fas fa-info-circle"></i> سيُطبَّق الإطار + اللوقو على كل صورة قبل النشر (يُضاف ~1-2 ثانية لكل منشور). يمكنك تغيير الإطار/اللوقو من <a href="/" style="color:#FFC424;">الإعدادات الرئيسية</a>.
+                    </div>
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="removeBackground"><i class="fas fa-magic"></i> إزالة خلفية المنتج</label>
+                        <label class="switch"><input type="checkbox" id="removeBackground"><span class="slider"></span></label>
+                    </div>
+                    <div id="removeBackgroundHint" style="display:none; padding: 4px 0 8px; font-size: 12px; color: #9ca3af;">
+                        <i class="fas fa-info-circle"></i> يستخدم API (remove.bg / Photoroom / Clipdrop) مع تدوير تلقائي بين المفاتيح. أضِف المفاتيح من <a href="/" style="color:#FFC424;">الإعدادات الرئيسية</a> أولاً.
+                    </div>
+                    <div class="toggle-row">
+                        <label class="toggle-row-label" for="notifyOwner"><i class="fas fa-bell"></i> إشعارات فورية</label>
+                        <label class="switch"><input type="checkbox" id="notifyOwner"><span class="slider"></span></label>
+                    </div>
+                    <div style="padding-top: 8px;">
+                        <div class="inline-fields">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>الحد اليومي:</label>
+                                <input type="number" id="dailyLimit" value="0" min="0" max="200" style="direction: ltr;">
+                                <p class="form-hint">0 = بلا حد</p>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Chat ID:</label>
+                                <input type="text" id="ownerId" placeholder="معرف حسابك" style="direction: ltr;">
+                                <p class="form-hint">للإشعارات والمراجعة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-template">
+            <div class="collapse-section" style="margin-bottom:0;">
+                <div class="collapse-header" onclick="toggleCollapse(this)" style="cursor:default;">
+                    <span class="title"><i class="fas fa-filter"></i> فلاتر الكوبونات</span>
+                </div>
+                <div class="collapse-body open">
+                    <div style="background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+                        <p style="color: #FF6B35; font-size: 12px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-info-circle"></i>
+                            القالب الأساسي يُؤخذ من الإعدادات العامة في الصفحة الرئيسية. هنا فقط إعدادات الكوبونات الخاصة بالتجسس.
+                        </p>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label>فلتر الكوبونات (بادئات مقبولة):</label>
+                        <input type="text" id="tmplCouponFilter" placeholder="AFAS, ZNQ" style="direction:ltr; text-align:left;">
+                        <small style="color:#999; font-size:10px;">الكوبونات المستخرجة التي لا تبدأ بهذه البادئات يتم تجاهلها — اتركه فارغاً لقبول الكل</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label>كوبونات ثابتة (تُضاف دائماً):</label>
+                        <input type="text" id="tmplFixedCoupons" placeholder="AFAS5, ZNQ005" style="direction:ltr; text-align:left;">
+                        <small style="color:#999; font-size:10px;">افصل بين الكوبونات بفاصلة — تُضاف تلقائياً لكل منشور</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label>🎁 احجز قسيمة البائع:</label>
+                        <input type="text" id="tmplSellerCoupon" placeholder="مثال: SALE10" style="direction:rtl;">
+                        <small style="color:#999; font-size:10px;">رابط أو نص ثابت لقسيمة البائع — يُضاف في آخر الرسالة</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label>كود الخصم:</label>
+                        <input type="text" id="tmplSellerCouponCode" placeholder="مثال: SALE10" style="direction:ltr; text-align:left;">
+                        <small style="color:#999; font-size:10px;">الكود يُضاف على سطر منفصل بعد قسيمة البائع</small>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1);">
+                        <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                            <span>🎯 مقدمة جزائرية تلقائية (AI)</span>
+                            <input type="checkbox" id="tmplHookEnabled" style="width:20px; height:20px;">
+                        </label>
+                        <small style="color:#999; font-size:10px;">يضيف Gemini مقدمة حماسية بالدارجة فوق كل منشور (مثل: الحححححق لافـــــار ما تراطيش 🔥😍)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="save-btn" onclick="saveAndApply()">
+            <i class="fas fa-save"></i> حفظ الإعدادات
+        </button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let config = {
+            enabled: false,
+            sourceChannels: [],
+            targetChannels: [],
+            apiId: '',
+            apiHash: '',
+            phoneNumber: '',
+            autoPublish: true,
+            publishDelay: false,
+            delayMin: 1,
+            delayMax: 5,
+            notifyOwner: false,
+            ownerId: '',
+            manualReview: false,
+            dailyLimit: 0,
+            useTypedLinks: false,
+            applyFrame: false,
+            removeBackground: false,
+            linkType: 'coin',
+            facebookEnabled: false,
+            facebookPageId: '',
+            facebookPageToken: '',
+            messageTemplate: {
+                fixedCoupons: '',
+                couponFilter: '',
+                sellerCoupon: '',
+                sellerCouponCode: ''
+            }
+        };
+
+        function esc(str) {
+            if (!str) return '';
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function appendLine(el, text) {
+            if (el.childNodes.length > 0) el.appendChild(document.createElement('br'));
+            el.appendChild(document.createTextNode(text));
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show ' + (type || '');
+            setTimeout(() => toast.className = 'toast', 3000);
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', ['settings', 'template'][i] === tab);
+            });
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        function toggleCollapse(header) {
+            const body = header.nextElementSibling;
+            const arrow = header.querySelector('.arrow');
+            const isOpen = body.classList.contains('open');
+            body.classList.toggle('open');
+            if (arrow) arrow.classList.toggle('open');
+        }
+
+        function selectLinkType(type) {
+            config.linkType = type;
+            document.querySelectorAll('.link-type-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.type === type);
+            });
+        }
+
+        document.getElementById('useTypedLinks').addEventListener('change', function() {
+            document.getElementById('linkTypeGrid').style.display = this.checked ? 'grid' : 'none';
+            config.useTypedLinks = this.checked;
+        });
+
+        document.getElementById('publishDelay').addEventListener('change', function() {
+            document.getElementById('delayRange').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('removeBackground').addEventListener('change', function() {
+            document.getElementById('removeBackgroundHint').style.display = this.checked ? 'block' : 'none';
+        });
+        document.getElementById('applyFrame').addEventListener('change', function() {
+            document.getElementById('applyFrameHint').style.display = this.checked ? 'block' : 'none';
+        });
+
+        function renderChannels(type) {
+            const listId = type === 'source' ? 'sourceChannelsList' : 'targetChannelsList';
+            const channels = type === 'source' ? config.sourceChannels : config.targetChannels;
+            const container = document.getElementById(listId);
+            container.innerHTML = '';
+            channels.forEach((ch, i) => {
+                const item = document.createElement('div');
+                item.className = 'channel-item';
+                const span = document.createElement('span');
+                span.textContent = ch;
+                const btn = document.createElement('button');
+                btn.className = 'remove-ch-btn';
+                btn.innerHTML = '<i class="fas fa-trash"></i>';
+                btn.onclick = () => removeChannel(type, i);
+                item.appendChild(span);
+                item.appendChild(btn);
+                container.appendChild(item);
+            });
+            const countEl = document.getElementById(type + 'Count');
+            if (countEl) countEl.textContent = channels.length;
+        }
+
+        function addChannel(type) {
+            const inputId = type === 'source' ? 'newSourceChannel' : 'newTargetChannel';
+            const val = document.getElementById(inputId).value.trim();
+            if (!val) return;
+            const arr = type === 'source' ? config.sourceChannels : config.targetChannels;
+            if (!arr.includes(val)) {
+                arr.push(val);
+                renderChannels(type);
+            }
+            document.getElementById(inputId).value = '';
+        }
+
+        function removeChannel(type, idx) {
+            const arr = type === 'source' ? config.sourceChannels : config.targetChannels;
+            arr.splice(idx, 1);
+            renderChannels(type);
+        }
+
+        function toggleBulk(type) {
+            const ta = document.getElementById('bulk' + type.charAt(0).toUpperCase() + type.slice(1) + 'Channels');
+            const btn = document.getElementById('bulk' + type.charAt(0).toUpperCase() + type.slice(1) + 'Btn');
+            const show = ta.style.display === 'none';
+            ta.style.display = show ? 'block' : 'none';
+            btn.style.display = show ? 'block' : 'none';
+        }
+
+        function addBulkChannels(type) {
+            const ta = document.getElementById('bulk' + type.charAt(0).toUpperCase() + type.slice(1) + 'Channels');
+            const lines = ta.value.split('\n').map(l => l.trim()).filter(l => l);
+            const arr = type === 'source' ? config.sourceChannels : config.targetChannels;
+            let added = 0;
+            lines.forEach(ch => { if (!arr.includes(ch)) { arr.push(ch); added++; } });
+            renderChannels(type);
+            ta.value = '';
+            ta.style.display = 'none';
+            document.getElementById('bulk' + type.charAt(0).toUpperCase() + type.slice(1) + 'Btn').style.display = 'none';
+            showToast(`تمت إضافة ${added} قناة`, 'success');
+        }
+
+        function collectConfig() {
+            config.sourceChannels = config.sourceChannels || [];
+            config.targetChannels = config.targetChannels || [];
+            config.apiId = document.getElementById('apiId').value.trim();
+            config.apiHash = document.getElementById('apiHash').value.trim();
+            config.phoneNumber = document.getElementById('phoneNumber').value.trim();
+            config.autoPublish = document.getElementById('autoPublish').checked;
+            config.publishDelay = document.getElementById('publishDelay').checked;
+            config.delayMin = parseInt(document.getElementById('delayMin').value) || 1;
+            config.delayMax = parseInt(document.getElementById('delayMax').value) || 5;
+            if (config.delayMin > config.delayMax) {
+                [config.delayMin, config.delayMax] = [config.delayMax, config.delayMin];
+            }
+            config.notifyOwner = document.getElementById('notifyOwner').checked;
+            config.ownerId = document.getElementById('ownerId').value.trim();
+            config.manualReview = document.getElementById('manualReview').checked;
+            config.dailyLimit = parseInt(document.getElementById('dailyLimit').value) || 0;
+            config.useTypedLinks = document.getElementById('useTypedLinks').checked;
+            config.applyFrame = document.getElementById('applyFrame').checked;
+            config.removeBackground = document.getElementById('removeBackground').checked;
+            // اقرأ إعدادات الإطار/اللوقو من الإعدادات الرئيسية المخزَّنة محلياً
+            const _ms = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            config.watermarkPosition = _ms.watermarkPosition || 'bottom-right';
+            config.watermarkSize = _ms.watermarkSize || 'medium';
+            config.facebookEnabled = document.getElementById('facebookEnabled').checked;
+            // facebookPageId و facebookPageToken يأتيان من متغيرات Render — لا تُحفظ من الواجهة
+            const fbTokenVal = '';
+            if (fbTokenVal && !fbTokenVal.includes('****')) {
+                config.facebookPageToken = fbTokenVal;
+            }
+            const mainSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            config.messageTemplate = {
+                headerText: '',
+                prefix: mainSettings.prefix || '',
+                priceLabel: mainSettings.salePrice || '💰 السعر:',
+                linkLabel: mainSettings.linkText || '🛒 رابط الشراء:',
+                couponLabel: mainSettings.couponText || 'كوبون',
+                fixedCoupons: document.getElementById('tmplFixedCoupons').value,
+                couponFilter: document.getElementById('tmplCouponFilter').value,
+                sellerCoupon: document.getElementById('tmplSellerCoupon').value,
+                sellerCouponCode: document.getElementById('tmplSellerCouponCode').value,
+                footer: mainSettings.footer || '',
+                botLink: mainSettings.botLink || '',
+                hashtags: mainSettings.hashtags || '',
+                hookEnabled: document.getElementById('tmplHookEnabled').checked,
+                seasonOffer: mainSettings.seasonOffer || '',
+                seasonOfferEnabled: !!mainSettings.seasonOfferEnabled,
+                dollarRate: parseFloat(mainSettings.dollarRate) || 0
+            };
+            return config;
+        }
+
+        function populateUI() {
+            document.getElementById('apiId').value = config.apiId || '';
+            document.getElementById('apiHash').value = config.apiHash || '';
+            document.getElementById('phoneNumber').value = config.phoneNumber || '';
+            document.getElementById('autoPublish').checked = config.autoPublish !== false;
+            document.getElementById('publishDelay').checked = !!config.publishDelay;
+            document.getElementById('delayMin').value = config.delayMin || 1;
+            document.getElementById('delayMax').value = config.delayMax || 5;
+            document.getElementById('delayRange').style.display = config.publishDelay ? 'block' : 'none';
+            document.getElementById('notifyOwner').checked = !!config.notifyOwner;
+            document.getElementById('ownerId').value = config.ownerId || '';
+            document.getElementById('manualReview').checked = !!config.manualReview;
+            document.getElementById('dailyLimit').value = config.dailyLimit || 0;
+            document.getElementById('useTypedLinks').checked = !!config.useTypedLinks;
+            document.getElementById('applyFrame').checked = !!config.applyFrame;
+            document.getElementById('applyFrameHint').style.display = config.applyFrame ? 'block' : 'none';
+            document.getElementById('removeBackground').checked = !!config.removeBackground;
+            document.getElementById('removeBackgroundHint').style.display = config.removeBackground ? 'block' : 'none';
+            document.getElementById('linkTypeGrid').style.display = config.useTypedLinks ? 'grid' : 'none';
+            selectLinkType(config.linkType || 'coin');
+            document.getElementById('facebookEnabled').checked = !!config.facebookEnabled;
+            const fromEnv = config.facebookFromEnv || {};
+            const credsStatus = document.getElementById('fbCredsStatus');
+            const envBadge = document.getElementById('fbEnvBadge');
+            if (credsStatus) {
+                credsStatus.textContent = '';
+                const idOk = fromEnv.pageId, tokOk = fromEnv.pageToken;
+                if (idOk && tokOk) {
+                    credsStatus.style.color = '#6bff6b';
+                    credsStatus.textContent = '✅ كلا المتغيرين مضبوطان في Render';
+                } else if (!idOk && !tokOk) {
+                    credsStatus.style.color = '#ff9b6b';
+                    credsStatus.textContent = '⚠️ لم يتم ضبط المتغيرات في Render — أضف FACEBOOK_PAGE_ID و FACEBOOK_PAGE_TOKEN';
+                } else {
+                    credsStatus.style.color = '#ffcc66';
+                    credsStatus.textContent = '⚠️ ناقص: ' + (!idOk ? 'FACEBOOK_PAGE_ID' : 'FACEBOOK_PAGE_TOKEN');
+                }
+            }
+            if (envBadge) {
+                if (fromEnv.pageId && fromEnv.pageToken) {
+                    envBadge.textContent = '🔒 مرتبط بمتغيرات Render';
+                    envBadge.style.display = 'inline-block';
+                } else {
+                    envBadge.style.display = 'none';
+                }
+            }
+            document.getElementById('fbSettings').style.display = config.facebookEnabled ? 'block' : 'none';
+            renderChannels('source');
+            renderChannels('target');
+            const t = config.messageTemplate || {};
+            document.getElementById('tmplFixedCoupons').value = t.fixedCoupons || '';
+            document.getElementById('tmplCouponFilter').value = t.couponFilter || '';
+            document.getElementById('tmplSellerCoupon').value = t.sellerCoupon || '';
+            document.getElementById('tmplSellerCouponCode').value = t.sellerCouponCode || '';
+            document.getElementById('tmplHookEnabled').checked = t.hookEnabled !== false;
+        }
+
+        function updateStatusUI(running) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            const btn = document.getElementById('toggleBtn');
+            if (running) {
+                dot.className = 'status-dot active';
+                text.textContent = 'يعمل';
+                btn.className = 'toggle-btn stop';
+                btn.innerHTML = '<i class="fas fa-stop"></i> إيقاف';
+            } else {
+                dot.className = 'status-dot inactive';
+                text.textContent = 'متوقف';
+                btn.className = 'toggle-btn start';
+                btn.innerHTML = '<i class="fas fa-play"></i> تشغيل';
+            }
+        }
+
+        async function toggleSpy() {
+            const btn = document.getElementById('toggleBtn');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/spy/status');
+                const st = await res.json();
+                if (st.running) {
+                    await fetch('/api/spy/stop', { method: 'POST' });
+                    updateStatusUI(false);
+                    showToast('تم إيقاف التجسس', 'success');
+                } else {
+                    collectConfig();
+                    const r = await fetch('/api/spy/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(config)
+                    });
+                    const d = await r.json();
+                    if (d.success) {
+                        updateStatusUI(true);
+                        showToast('تم تشغيل التجسس!', 'success');
+                    } else {
+                        showToast(d.error || 'فشل التشغيل', 'error');
+                    }
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
+            btn.disabled = false;
+        }
+
+        async function saveAndApply() {
+            collectConfig();
+            try {
+                const r = await fetch('/api/spy/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const d = await r.json();
+                if (d.success) {
+                    showToast('تم حفظ الإعدادات', 'success');
+                    await loadConfig();
+                }
+                else showToast('فشل الحفظ', 'error');
+            } catch (e) {
+                showToast('خطأ في الحفظ', 'error');
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const r = await fetch('/api/spy/config');
+                const d = await r.json();
+                if (d.config) {
+                    const c = d.config;
+                    config.sourceChannels = c.sourceChannels || [];
+                    config.targetChannels = c.targetChannels || [];
+                    config.apiId = c.apiId || '';
+                    config.apiHash = c.apiHash || '';
+                    config.phoneNumber = c.phoneNumber || '';
+                    config.autoPublish = c.autoPublish !== false;
+                    config.publishDelay = !!c.publishDelay;
+                    config.delayMin = c.delayMin || 1;
+                    config.delayMax = c.delayMax || 5;
+                    config.notifyOwner = !!c.notifyOwner;
+                    config.ownerId = c.ownerId || '';
+                    config.manualReview = !!c.manualReview;
+                    config.dailyLimit = c.dailyLimit || 0;
+                    config.useTypedLinks = !!c.useTypedLinks;
+                    config.applyFrame = !!c.applyFrame;
+                    config.removeBackground = !!c.removeBackground;
+                    config.linkType = c.linkType || 'coin';
+                    config.facebookEnabled = !!c.facebookEnabled;
+                    config.facebookPageId = c.facebookPageId || '';
+                    if (c.facebookPageToken) {
+                        config.facebookPageToken = c.facebookPageToken;
+                    }
+                    config.messageTemplate = c.messageTemplate || config.messageTemplate;
+                }
+                populateUI();
+            } catch (e) {
+                console.log('Failed to load config');
+            }
+        }
+
+        async function checkStatus() {
+            try {
+                const r = await fetch('/api/spy/status');
+                const d = await r.json();
+                updateStatusUI(d.running);
+                if (d.session) {
+                    const ss = document.getElementById('sessionStatus');
+                    ss.innerHTML = d.session === 'connected'
+                        ? '<span class="session-badge connected"><i class="fas fa-check-circle"></i> متصل</span>'
+                        : '<span class="session-badge disconnected"><i class="fas fa-exclamation-circle"></i> غير متصل</span>';
+                }
+            } catch (e) {}
+        }
+
+        async function sendCode() {
+            const btn = document.getElementById('sendCodeBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الإرسال...';
+            collectConfig();
+            try {
+                const r = await fetch('/api/spy/send-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiId: config.apiId, apiHash: config.apiHash, phoneNumber: config.phoneNumber })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+                    document.getElementById('auth-step-code').classList.add('active');
+                    showToast('تم إرسال الرمز!', 'success');
+                } else {
+                    showToast(d.error || 'فشل الإرسال', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال رمز التحقق';
+        }
+
+        async function verifyLoginCode() {
+            const btn = document.getElementById('verifyCodeBtn');
+            btn.disabled = true;
+            const code = document.getElementById('verifyCode').value.trim();
+            if (!code) { showToast('أدخل الرمز', 'error'); btn.disabled = false; return; }
+            try {
+                const r = await fetch('/api/spy/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+                    document.getElementById('auth-step-done').classList.add('active');
+                    showToast('تم تسجيل الدخول!', 'success');
+                } else if (d.needPassword) {
+                    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+                    document.getElementById('auth-step-password').classList.add('active');
+                    showToast('أدخل كلمة مرور الحساب', '');
+                } else {
+                    showToast(d.error || 'رمز خاطئ', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ', 'error');
+            }
+            btn.disabled = false;
+        }
+
+        async function verifyPassword() {
+            const btn = document.getElementById('verifyPassBtn');
+            btn.disabled = true;
+            const password = document.getElementById('twoStepPassword').value;
+            try {
+                const r = await fetch('/api/spy/verify-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+                    document.getElementById('auth-step-done').classList.add('active');
+                    showToast('تم تسجيل الدخول!', 'success');
+                } else {
+                    showToast(d.error || 'كلمة المرور خاطئة', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ', 'error');
+            }
+            btn.disabled = false;
+        }
+
+        async function logoutTelegram() {
+            const btn = document.getElementById('logoutBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التسجيل خارج...';
+            try {
+                const r = await fetch('/api/spy/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const d = await r.json();
+                if (d.success) {
+                    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
+                    document.getElementById('auth-step-send').classList.add('active');
+                    document.getElementById('verifyCode').value = '';
+                    document.getElementById('twoStepPassword').value = '';
+                    showToast('تم تسجيل الخروج', 'success');
+                } else {
+                    showToast(d.error || 'فشل تسجيل الخروج', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> تسجيل الخروج';
+        }
+
+        async function saveSpyCookie() {
+            const val = document.getElementById('spyCookieInput').value.trim();
+            if (!val) { showToast('أدخل الكوكي أولاً', 'error'); return; }
+            try {
+                const r = await fetch('/api/save-credentials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookie: val })
+                });
+                const d = await r.json();
+                showToast(d.success ? 'تم حفظ الكوكي' : 'فشل الحفظ', d.success ? 'success' : 'error');
+            } catch (e) {
+                showToast('خطأ في الحفظ', 'error');
+            }
+        }
+
+        async function testSpyCookie() {
+            const btn = document.getElementById('testCookieBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            const st = document.getElementById('cookieStatus');
+            try {
+                const r = await fetch('/api/test-cookie');
+                const d = await r.json();
+                st.innerHTML = d.valid
+                    ? '<span style="color:#4CAF50;">✅ الكوكي يعمل</span>'
+                    : '<span style="color:#ff4444;">❌ الكوكي لا يعمل</span>';
+            } catch (e) {
+                st.innerHTML = '<span style="color:#ff4444;">خطأ في الاختبار</span>';
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-vial"></i> اختبار';
+        }
+
+        async function saveSpyBotToken() {
+            const val = document.getElementById('spyBotTokenInput').value.trim();
+            if (!val) { showToast('أدخل التوكن أولاً', 'error'); return; }
+            try {
+                const r = await fetch('/api/save-credentials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ botToken: val })
+                });
+                const d = await r.json();
+                showToast(d.success ? 'تم حفظ التوكن' : 'فشل الحفظ', d.success ? 'success' : 'error');
+            } catch (e) {
+                showToast('خطأ في الحفظ', 'error');
+            }
+        }
+
+        document.getElementById('facebookEnabled').addEventListener('change', function() {
+            document.getElementById('fbSettings').style.display = this.checked ? 'block' : 'none';
+        });
+
+        async function verifyFacebook() {
+            const statusEl = document.getElementById('fbStatus');
+            statusEl.style.display = 'block';
+            statusEl.style.background = '#1a2a3d';
+            statusEl.style.color = '#88c0ff';
+            statusEl.textContent = '⏳ جاري التحقق...';
+            try {
+                // لا نُرسل أي توكن — السيرفر يستخدم متغيرات Render
+                const r = await fetch('/api/facebook/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                });
+                const d = await r.json();
+                statusEl.textContent = '';
+                if (d.success) {
+                    statusEl.style.background = '#1a3d1a';
+                    statusEl.style.color = '#6bff6b';
+                    appendLine(statusEl, '✅ تم التحقق — الصفحة: ' + (d.pageName || ''));
+                    if (d.tasks && d.tasks.length) appendLine(statusEl, '🛡️ الصلاحيات: ' + d.tasks.join(', '));
+                } else {
+                    statusEl.style.background = '#3d1a1a';
+                    statusEl.style.color = '#ff6b6b';
+                    appendLine(statusEl, '❌ ' + (d.error || 'فشل التحقق'));
+                    if (d.hint) appendLine(statusEl, '💡 ' + d.hint);
+                    if (d.suggestedPageToken) {
+                        appendLine(statusEl, '🔑 Page Token الصحيح (انسخه إلى FACEBOOK_PAGE_TOKEN في Render):');
+                        const codeBox = document.createElement('textarea');
+                        codeBox.value = d.suggestedPageToken;
+                        codeBox.readOnly = true;
+                        codeBox.style.cssText = 'width:100%;margin-top:6px;background:#0a0a14;color:#6bff6b;border:1px solid #444;border-radius:6px;padding:8px;font-family:monospace;font-size:11px;height:60px;direction:ltr;';
+                        codeBox.onclick = () => { codeBox.select(); document.execCommand('copy'); showToast('تم النسخ', 'success'); };
+                        statusEl.appendChild(codeBox);
+                    }
+                }
+            } catch (e) {
+                statusEl.style.background = '#3d1a1a';
+                statusEl.style.color = '#ff6b6b';
+                statusEl.textContent = '❌ خطأ في الاتصال: ' + e.message;
+            }
+        }
+
+        async function testFacebookPost() {
+            const statusEl = document.getElementById('fbStatus');
+            statusEl.style.display = 'block';
+            statusEl.style.background = '#1a2a3d';
+            statusEl.style.color = '#88c0ff';
+            statusEl.textContent = '⏳ جاري النشر التجريبي...';
+            try {
+                const r = await fetch('/api/facebook/test-post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                });
+                const d = await r.json();
+                statusEl.textContent = '';
+                if (d.success) {
+                    statusEl.style.background = '#1a3d1a';
+                    statusEl.style.color = '#6bff6b';
+                    appendLine(statusEl, '✅ تم النشر بنجاح على ' + (d.pageName || 'صفحتك') + '!');
+                    appendLine(statusEl, '🔗 Post ID: ' + (d.postId || '-'));
+                    showToast('تم النشر التجريبي على فيسبوك!', 'success');
+                } else {
+                    statusEl.style.background = '#3d1a1a';
+                    statusEl.style.color = '#ff6b6b';
+                    appendLine(statusEl, '❌ فشل النشر: ' + (d.error || 'سبب غير معروف'));
+                    if (d.hint) appendLine(statusEl, '💡 ' + d.hint);
+                    if (d.tasks && d.tasks.length) appendLine(statusEl, '🛡️ الصلاحيات الموجودة: ' + d.tasks.join(', '));
+                    if (d.isUserToken) appendLine(statusEl, '⚠️ تستخدم User Token — يجب التبديل لـ Page Access Token.');
+                }
+            } catch (e) {
+                statusEl.style.background = '#3d1a1a';
+                statusEl.style.color = '#ff6b6b';
+                statusEl.textContent = '❌ خطأ في الاتصال: ' + e.message;
+            }
+        }
+
+        loadConfig();
+        checkStatus();
+        setInterval(checkStatus, 15000);
+    </script>
+</body>
+</html>
