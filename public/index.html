@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/manifest.json?v=4">
+    <title>AffiliDz - أتمتة الأفلييت</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/modern-theme.css">
+    <style>
+        .header { 
+            background: linear-gradient(135deg, #FF7043 0%, #F4511E 50%, #E64A19 100%); 
+            padding: 70px 20px 60px; 
+            border-radius: 0 0 0 0; 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -30%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -60%;
+            left: -10%; right: -10%;
+            height: 80%;
+            background: var(--bg-primary);
+            border-radius: 50% 50% 0 0;
+        }
+        .header > * { position: relative; z-index: 2; }
+        .header h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; margin-top: 40px; text-shadow: 0 2px 15px rgba(0,0,0,0.2); }
+        .header p { opacity: 0.9; font-size: 15px; font-weight: 400; }
+        
+        .top-actions {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            padding: 0 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            z-index: 3;
+        }
+        .top-actions::-webkit-scrollbar { display: none; }
+        .top-actions .nav-icon {
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            width: 38px; height: 38px;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all var(--transition-fast);
+        }
+        .top-actions .nav-icon:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
+        .top-actions .nav-icon:active { transform: scale(0.9); }
+
+        .settings-btn { 
+            background: rgba(255,255,255,0.2); border: none; 
+            border-radius: 12px; width: 42px; height: 42px; 
+            color: #fff; font-size: 18px; cursor: pointer;
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .telegram-page-btn { 
+            background: #0088cc; border: none; 
+            border-radius: 12px; width: 42px; height: 42px; 
+            color: #fff; font-size: 18px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+            transition: all 0.2s;
+        }
+        .settings-btn:active, .telegram-page-btn:active { transform: scale(0.9); }
+        
+        .search-container { 
+            margin: -30px 20px 0; 
+            background: rgba(255,255,255,0.95); 
+            border-radius: var(--radius-lg); 
+            padding: 6px; 
+            display: flex; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(20px);
+        }
+        .search-input { 
+            flex: 1; border: none; padding: 15px 18px; 
+            font-size: 14px; font-family: 'Cairo', sans-serif; 
+            direction: rtl; background: transparent; color: #333;
+        }
+        .search-input::placeholder { color: #aaa; }
+        .search-input:focus { outline: none; }
+        .search-btn { 
+            background: linear-gradient(135deg, #FF7043, #F4511E); border: none; 
+            border-radius: var(--radius-md); width: 50px; height: 50px; 
+            cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; color: #fff; font-size: 20px;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 15px rgba(255,112,67,0.3);
+        }
+        .search-btn:hover { transform: scale(1.05); }
+        .search-btn:active { transform: scale(0.95); }
+        .search-btn:disabled { background: #666; box-shadow: none; }
+        
+        .content { padding: 30px 20px; }
+        .section-title { font-size: 18px; font-weight: 700; margin: 25px 0 15px; display: flex; align-items: center; gap: 10px; color: var(--text-primary); }
+        .section-title::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent); }
+        
+        .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-md); padding: 15px; text-align: center; color: var(--accent-red); margin-bottom: 20px; display: none; font-size: 14px; }
+        .error-msg.show { display: block; animation: fadeInUp 0.3s ease-out; }
+        
+        .loading { text-align: center; padding: 40px; display: none; }
+        .loading.show { display: block; }
+        .loading i { font-size: 40px; color: var(--accent-orange); animation: spin 1s linear infinite; }
+        
+        .results { display: none; }
+        .results.show { display: block; animation: fadeInUp 0.4s ease-out; }
+        
+        .product-card { background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 25px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md); transition: all var(--transition-normal); }
+        .product-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .product-image { width: 100%; height: 230px; object-fit: cover; }
+        .product-title { padding: 18px 18px 8px; font-size: 16px; line-height: 1.5; font-weight: 600; color: var(--text-primary); text-align: right; }
+        .product-price-row { padding: 0 18px 10px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+        .product-price { font-size: 22px; font-weight: 800; color: var(--accent-orange); }
+        .product-original-price { font-size: 14px; color: var(--text-muted); text-decoration: line-through; }
+        .product-discount { background: linear-gradient(135deg, #10B981, #059669); color: #fff; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+        
+        .product-info { padding: 0 18px 18px; display: flex; justify-content: flex-end; gap: 15px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--border-subtle); padding-top: 12px; }
+        .product-info i { color: var(--accent-orange); }
+        
+        .link-card { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; border: 1px solid var(--border-subtle); transition: all var(--transition-fast); }
+        .link-card:hover { border-color: rgba(255,255,255,0.1); background: var(--bg-card); }
+        .link-card:active { transform: scale(0.98); }
+        .link-header { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 10px; }
+        .link-header i { color: var(--accent-orange); margin-left: 10px; font-size: 16px; }
+        .link-header span { font-weight: 700; font-size: 15px; }
+        .link-text { color: var(--text-muted); font-size: 11px; word-break: break-all; margin-bottom: 15px; direction: ltr; text-align: right; opacity: 0.6; }
+        
+        .link-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .action-btn { 
+            display: flex; align-items: center; justify-content: center; 
+            gap: 8px; padding: 12px 5px; border-radius: var(--radius-md); border: none; 
+            cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 13px; 
+            color: #fff; font-weight: 700; transition: all var(--transition-fast);
+            position: relative; overflow: hidden;
+        }
+        .action-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .action-btn:hover { transform: translateY(-1px); }
+        .action-btn:active { transform: scale(0.96); }
+        .copy-btn { background: linear-gradient(135deg, #FF7043, #F4511E); box-shadow: var(--shadow-glow-orange); }
+        .open-btn { background: linear-gradient(135deg, #10B981, #059669); }
+        .tele-btn { background: linear-gradient(135deg, #2AABEE, #229ED9); grid-column: span 2; box-shadow: var(--shadow-glow-blue); }
+        .share-btn { background: linear-gradient(135deg, #7C3AED, #6D28D9); grid-column: span 2; box-shadow: var(--shadow-glow-purple); }
+        
+        .warning-card { background: rgba(255,165,0,0.06); border-radius: var(--radius-md); padding: 15px; text-align: center; margin-top: 25px; color: #FFA500; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid rgba(255,165,0,0.15); font-size: 14px; }
+        
+        .telegram-section { background: var(--bg-card); border-radius: var(--radius-lg); padding: 20px; margin-top: 25px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md); }
+        .telegram-section h3 { color: var(--accent-blue); margin-bottom: 18px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 18px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 13px; text-align: right; padding-right: 5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 13px 15px; border-radius: var(--radius-md); border: 1.5px solid var(--border-subtle); background: var(--bg-input); color: var(--text-primary); font-family: 'Cairo', sans-serif; font-size: 14px; direction: rtl; transition: all var(--transition-fast); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-purple-glow); }
+        
+        .publish-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #2AABEE, #229ED9); border: none; border-radius: var(--radius-md); color: #fff; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--shadow-glow-blue); transition: all var(--transition-fast); position: relative; overflow: hidden; }
+        .publish-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .publish-btn:hover { transform: translateY(-1px); }
+        .publish-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none; }
+        
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 70px; margin-bottom: 20px; opacity: 0.15; display: block; }
+        .empty-state p { font-size: 16px; font-weight: 600; }
+        
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(30,30,50,0.9); color: #fff; padding: 14px 28px; border-radius: 16px; display: none; z-index: 5000; font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        .toast.show { display: block; animation: fadeInUp 0.3s ease-out; }
+        @keyframes fadeInUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 4000; overflow-y: auto; padding: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .modal.show { display: flex; align-items: flex-start; justify-content: center; animation: fadeInUp 0.3s ease-out; }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: var(--radius-xl); padding: 25px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-lg); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px; }
+        .modal-header h2 { color: var(--accent-orange); font-size: 22px; font-weight: 800; }
+        .modal-close { background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-secondary); width: 36px; height: 36px; border-radius: var(--radius-sm); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all var(--transition-fast); }
+        .modal-close:hover { background: rgba(255,255,255,0.1); }
+        
+        .save-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #10B981, #059669); border: none; border-radius: var(--radius-md); color: #fff; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all var(--transition-fast); position: relative; overflow: hidden; }
+        .save-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 50%); pointer-events: none; }
+        .save-btn:hover { transform: translateY(-1px); }
+        .reset-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid rgba(239,68,68,0.4); border-radius: var(--radius-md); color: var(--accent-red); font-family: 'Cairo', sans-serif; font-size: 14px; cursor: pointer; margin-top: 15px; transition: all var(--transition-fast); }
+        .reset-btn:hover { background: rgba(239,68,68,0.08); }
+        .settings-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; padding-right: 5px; }
+        
+        .install-prompt { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(255,255,255,0.95); color: #333; padding: 15px 20px; border-radius: var(--radius-lg); display: none; z-index: 3500; align-items: center; justify-content: space-between; box-shadow: var(--shadow-lg); backdrop-filter: blur(20px); }
+        .install-prompt.show { display: flex; animation: fadeInUp 0.4s ease-out; }
+        .install-prompt span { font-size: 13px; font-weight: 600; flex: 1; margin-right: 10px; line-height: 1.4; }
+        .install-btn { background: linear-gradient(135deg, #FF7043, #F4511E); color: #fff; border: none; padding: 10px 22px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; }
+
+        hr { border: none; border-top: 1px solid var(--border-subtle); margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="top-actions">
+            <a href="/telegram.html" class="nav-icon" style="background:#0088cc"><i class="fab fa-telegram"></i></a>
+            <a href="/spy.html" class="nav-icon" style="background:#2d1b69"><i class="fas fa-user-secret"></i></a>
+            <a href="/saved-posts.html" class="nav-icon" style="background:#E91E63"><i class="fas fa-history"></i></a>
+            <a href="/discover.html" class="nav-icon discover-page-btn" style="background:#9C27B0"><i class="fas fa-magic"></i></a>
+            <a href="/collections.html" class="nav-icon collections-page-btn" style="background:#673AB7"><i class="fas fa-layer-group"></i></a>
+            <a href="/video-generator.html" class="nav-icon" style="background:#e44d26"><i class="fas fa-video"></i></a>
+            <a href="/excel-import.html" class="nav-icon" style="background:#1D6F42" title="استيراد من Excel"><i class="fas fa-file-excel"></i></a>
+            <a href="/store-analytics.html" class="nav-icon" style="background:#FF6B00"><i class="fas fa-chart-line"></i></a>
+            <button id="mainInstallBtn" class="nav-icon" style="background:#FF6B35" onclick="installApp()"><i class="fas fa-download"></i></button>
+            <button class="nav-icon" onclick="openSettings()"><i class="fas fa-cog"></i></button>
+        </div>
+        <h1>AffiliDz</h1>
+        <p>منصتك الذكية لأتمتة التسويق بالعمولة</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-input" id="urlInput" placeholder="الصق رابط المنتج هنا...">
+        <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
+    </div>
+
+    <div class="content">
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="loading" id="loading"><i class="fas fa-spinner"></i><p style="margin-top:10px; font-weight:600;">جاري البحث عن العروض...</p></div>
+        
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-link"></i>
+            <p>الصق رابط منتج AliExpress للبدء</p>
+        </div>
+
+        <div class="results" id="results">
+            <div class="product-card">
+                <img class="product-image" id="productImage" src="" alt="">
+                <div style="position: relative;">
+                    <div class="product-title" id="productTitle"></div>
+                    <button id="refineTitleBtn" class="action-btn" style="width: 100%; margin: 10px 0; padding: 12px; background: #673AB7; font-size: 14px; display: none; justify-content: center; align-items: center; border-radius: 10px;">
+                        <i class="fas fa-magic"></i> تحسين بالعامل الذكي
+                    </button>
+                </div>
+                <div class="product-price-row">
+                    <span class="product-discount" id="productDiscount"></span>
+                    <span class="product-original-price" id="productOriginalPrice"></span>
+                    <span class="product-price" id="productPrice"></span>
+                </div>
+                <div class="product-info" id="productInfo"></div>
+            </div>
+
+            <div class="section-title">🎉 روابط التخفيض</div>
+            <div id="linksContainer"></div>
+
+            <div class="warning-card" id="warningCard">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="warningText">غيّر البلد إلى كندا 🇨🇦</span>
+            </div>
+
+            <div class="telegram-section">
+                <h3><i class="fab fa-telegram"></i> نشر سريع في القناة</h3>
+                
+                <div style="background: rgba(156, 39, 176, 0.1); border: 1px dashed #9C27B0; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                    <button class="action-btn" id="aiWriteBtn" style="background: #9C27B0; width: 100%; margin-bottom: 10px;">
+                        <i class="fas fa-robot"></i> كاتب المحتوى الآلي (AI)
+                    </button>
+                    <p style="font-size: 11px; color: #aaa; text-align: center;">دعه يكتب لك منشوراً جذاباً بالدارجة الجزائرية!</p>
+                </div>
+
+                <div class="form-group">
+                    <label>الرابط المختار:</label>
+                    <select id="linkSelect"><option value="">-- اختر الرابط --</option></select>
+                </div>
+                <div class="form-group">
+                    <label>القناة المستهدفة:</label>
+                    <select id="channelSelect">
+                        <option value="1">القناة الأولى</option>
+                        <option value="2">القناة الثانية</option>
+                        <option value="both">كلا القناتين</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>كود الكوبون (اختياري):</label>
+                    <input type="text" id="couponInput" placeholder="مثال: AFFILIDZ5">
+                </div>
+                
+                <div class="form-group">
+                    <label>📝 معاينة المنشور (AI):</label>
+                    <textarea id="aiPreview" style="min-height: 150px; font-size: 13px; background: rgba(255,255,255,0.02);" placeholder="سيظهر المنشور المولد هنا..."></textarea>
+                    <p class="settings-hint">يمكنك تعديل النص هنا قبل نسخه أو نشره.</p>
+                </div>
+
+                <div style="display:flex;gap:8px;">
+                    <button class="publish-btn" id="publishBtn" disabled style="flex:1"><i class="fab fa-telegram"></i> نشر على تليغرام</button>
+                    <button class="publish-btn" id="publishFbBtn" disabled onclick="publishToFacebook()" style="flex:1;background:linear-gradient(135deg,#1877F2,#0d65d9)"><i class="fab fa-facebook"></i> نشر على فيسبوك</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> الإعدادات</h2>
+                <button class="modal-close" onclick="closeSettings()">&times;</button>
+            </div>
+            
+            <div style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; justify-content:space-between;">
+                        <span>🎉 عرض الموسم (نص ثابت أعلى كل منشور):</span>
+                        <input type="checkbox" id="settingSeasonOfferEnabled" style="width:18px; height:18px;">
+                    </label>
+                    <textarea id="settingSeasonOffer" placeholder="مثال: 🎉 عرض رمضان المبارك — تخفيضات تصل لـ 70%" style="min-height: 60px;"></textarea>
+                    <small style="color:#999; font-size:11px;">يظهر في أعلى كل منشور (يدوي + تجسس) طيلة الموسم. فعّل المربع لتشغيله.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>📢 نص بداية الرسالة:</label>
+                    <input type="text" id="settingPrefix" placeholder="📢تخفيض لـ">
+                </div>
+                
+                <div class="form-group">
+                    <label>✅ نص السعر بعد التخفيض:</label>
+                    <input type="text" id="settingSalePrice" placeholder="✅السعر بعد التخفيض:">
+                </div>
+
+                <div class="form-group">
+                    <label>💱 سعر الدولار بالدينار الجزائري (لحساب السعر بالدج):</label>
+                    <input type="number" id="settingDollarRate" placeholder="مثال: 215" min="1" step="1" style="direction:ltr">
+                    <small style="color:var(--text-muted,#888);font-size:12px;margin-top:4px;display:block">اتركه فارغاً إذا لا تريد عرض السعر بالدج</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>📌 نص رابط الشراء:</label>
+                    <input type="text" id="settingLinkText" placeholder="📌رابط الشراء :">
+                </div>
+                
+                <div class="form-group">
+                    <label>🎁 نص الكوبون:</label>
+                    <input type="text" id="settingCouponText" placeholder="🎁كوبون:">
+                </div>
+                
+                <div class="form-group">
+                    <label>📝 نص التذييل (Footer):</label>
+                    <textarea id="settingFooter" style="min-height: 80px;"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>🤖 رابط البوت:</label>
+                    <input type="text" id="settingBotLink">
+                </div>
+                
+                <div class="form-group">
+                    <label>#️⃣ الهاشتاغات:</label>
+                    <input type="text" id="settingHashtags">
+                </div>
+                
+                <div class="form-group">
+                    <label>⚠️ نص التحذير:</label>
+                    <input type="text" id="settingWarning">
+                </div>
+                
+                <div class="form-group">
+                    <label>🖼️ إطار الصورة (Frame):</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <img src="/frame.jpg" id="currentFramePreview" style="width: 60px; height: 60px; border-radius: 8px; border: 1px solid #2d2d44; object-fit: cover;">
+                        <div style="flex: 1;">
+                            <input type="file" id="frameUpload" accept="image/*" style="display: none;">
+                            <button type="button" onclick="document.getElementById('frameUpload').click()" class="action-btn" style="background: #FF6B35; width: 100%;"><i class="fas fa-upload"></i> تغيير الإطار</button>
+                        </div>
+                    </div>
+                    <p class="settings-hint">يفضل استخدام صورة مربعة (1:1) وبصيغة JPG أو PNG.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>🏷️ لوقو القناة (Watermark):</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <img src="/watermark_logo.png" id="currentLogoPreview" style="width: 60px; height: 60px; border-radius: 8px; border: 1px solid #2d2d44; object-fit: contain; background: #1a1a2e;" onerror="this.style.opacity='0.3'">
+                        <div style="flex: 1;">
+                            <input type="file" id="logoUpload" accept="image/png" style="display: none;">
+                            <button type="button" onclick="document.getElementById('logoUpload').click()" class="action-btn" style="background: #9C27B0; width: 100%;"><i class="fas fa-upload"></i> تغيير اللوقو</button>
+                        </div>
+                    </div>
+                    <p class="settings-hint">استخدم PNG بخلفية شفافة للحصول على أفضل نتيجة.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <select id="logoPosition" style="flex: 1; padding: 10px; background: #1a1a2e; border: 1px solid #2d2d44; border-radius: 8px; color: #fff; font-family: 'Cairo', sans-serif;">
+                            <option value="top-right">أعلى يمين</option>
+                            <option value="top-left">أعلى يسار</option>
+                            <option value="bottom-right">أسفل يمين</option>
+                            <option value="bottom-left">أسفل يسار</option>
+                            <option value="center">وسط</option>
+                        </select>
+                        <select id="logoSize" style="flex: 1; padding: 10px; background: #1a1a2e; border: 1px solid #2d2d44; border-radius: 8px; color: #fff; font-family: 'Cairo', sans-serif;">
+                            <option value="small">صغير</option>
+                            <option value="medium">متوسط</option>
+                            <option value="large">كبير</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <hr>
+                <h3 style="color: #FF6B35; margin-bottom: 15px; font-size: 16px;">🔐 إعدادات الحساب</h3>
+                
+                <div class="form-group">
+                    <label>🤖 Bot Token:</label>
+                    <input type="password" id="settingBotToken">
+                </div>
+                
+                <div class="form-group">
+                    <label>📢 Channel ID 1:</label>
+                    <input type="text" id="settingChannelId">
+                </div>
+                
+                <div class="form-group">
+                    <label>📢 Channel ID 2:</label>
+                    <input type="text" id="settingChannelId2">
+                </div>
+                
+                <hr>
+                <h3 style="color: #9C27B0; margin-bottom: 15px; font-size: 16px;">🤖 مفاتيح Gemini AI</h3>
+                
+                <div class="form-group">
+                    <label>🔑 مفاتيح Gemini API (افصل بين المفاتيح بفاصلة):</label>
+                    <textarea id="settingGeminiKeys" rows="3" placeholder="key1,key2,key3..." style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #2d2d44; background: #16213e; color: #fff; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                    <p class="settings-hint">أضف عدة مفاتيح للتبديل التلقائي عند نفاد الحصة.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="saveGeminiKeysBtn" onclick="saveGeminiKeys()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #9C27B0, #7B1FA2); border: none; border-radius: 8px; color: #fff; font-family: 'Cairo', sans-serif; cursor: pointer;"><i class="fas fa-key"></i> حفظ المفاتيح</button>
+                        <button type="button" id="checkGeminiStatusBtn" onclick="checkGeminiStatus()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #4CAF50, #388E3C); border: none; border-radius: 8px; color: #fff; font-family: 'Cairo', sans-serif; cursor: pointer;"><i class="fas fa-sync"></i> حالة المفاتيح</button>
+                    </div>
+                    <p id="geminiStatus" style="font-size: 12px; color: #4CAF50; margin-top: 10px;"></p>
+                </div>
+
+                <hr>
+                <h3 style="color: #FFC424; margin-bottom: 15px; font-size: 16px;">🎨 مفاتيح إزالة الخلفية (Remove.bg / Photoroom / Clipdrop)</h3>
+
+                <div class="form-group">
+                    <label>🔑 مفاتيح API (افصل بفاصلة، مع البادئة الاختيارية):</label>
+                    <textarea id="settingRemoveBgKeys" rows="3" placeholder="key1, removebg:key2, photoroom:key3, clipdrop:key4" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #2d2d44; background: #16213e; color: #fff; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+                    <p class="settings-hint">مفتاح بدون بادئة = remove.bg. يدور النظام تلقائياً بين كل المفاتيح.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" onclick="saveRemoveBgKeys()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #FFC424, #E5A800); border: none; border-radius: 8px; color: #0F0F1A; font-weight: bold; font-family: 'Cairo', sans-serif; cursor: pointer;"><i class="fas fa-key"></i> حفظ المفاتيح</button>
+                        <button type="button" onclick="checkRemoveBgStatus()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #4CAF50, #388E3C); border: none; border-radius: 8px; color: #fff; font-family: 'Cairo', sans-serif; cursor: pointer;"><i class="fas fa-sync"></i> الحالة</button>
+                    </div>
+                    <p id="removeBgStatus" style="font-size: 12px; color: #FFC424; margin-top: 10px;"></p>
+                </div>
+            </div>
+            
+            <button class="save-btn" onclick="saveSettings()"><i class="fas fa-save"></i> حفظ جميع التغييرات</button>
+            <button class="reset-btn" onclick="resetSettings()"><i class="fas fa-undo"></i> استعادة القيم الافتراضية</button>
+        </div>
+    </div>
+
+    <div class="install-prompt" id="installPrompt">
+        <span>ثبّت التطبيق على هاتف للحصول على تجربة أسرع وأفضل</span>
+        <button class="install-btn" id="installBtn">تثبيت</button>
+        <button onclick="document.getElementById('installPrompt').classList.remove('show')" style="background:none; border:none; color:#999; font-size:18px; padding-left:10px;">&times;</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+                document.getElementById('installPrompt').classList.remove('show');
+            } else {
+                showToast("يرجى التثبيت من قائمة المتصفح");
+            }
+        }
+
+        const defaultSettings = {
+            seasonOffer: '',
+            seasonOfferEnabled: false,
+            prefix: '📢تخفيض لـ',
+            salePrice: '✅السعر بعد التخفيض:',
+            linkText: '📌رابط الشراء :',
+            couponText: '🎁كوبون:',
+            footer: '⚠️ لا تنس استخدام البوت الرسمي لـ AffiliDz للحصول على أفضل العروض والتخفيضات من AliExpress 👇',
+            botLink: '@AffiliDz_bot',
+            hashtags: '#Aliexpress #Offers',
+            warning: 'غيّر البلد إلى كندا 🇨🇦',
+            telegramToken: '',
+            channelId: '',
+            channelId2: '@AffiliDz'
+        };
+
+        let settings = JSON.parse(localStorage.getItem('appSettings')) || { ...defaultSettings };
+        
+        function getSettings() { return settings; }
+
+        function openSettings() {
+            document.getElementById('settingSeasonOffer').value = settings.seasonOffer || '';
+            document.getElementById('settingSeasonOfferEnabled').checked = !!settings.seasonOfferEnabled;
+            document.getElementById('settingPrefix').value = settings.prefix || '';
+            document.getElementById('settingSalePrice').value = settings.salePrice || '';
+            document.getElementById('settingDollarRate').value = settings.dollarRate || '';
+            document.getElementById('settingLinkText').value = settings.linkText || '';
+            document.getElementById('settingCouponText').value = settings.couponText || '';
+            document.getElementById('settingFooter').value = settings.footer || '';
+            document.getElementById('settingBotLink').value = settings.botLink || '';
+            document.getElementById('settingHashtags').value = settings.hashtags || '';
+            document.getElementById('settingWarning').value = settings.warning || '';
+            document.getElementById('settingBotToken').value = settings.telegramToken || '';
+            document.getElementById('settingChannelId').value = settings.channelId || '';
+            document.getElementById('settingChannelId2').value = settings.channelId2 || '';
+            document.getElementById('settingGeminiKeys').value = '';
+            document.getElementById('settingRemoveBgKeys').value = '';
+            checkGeminiStatus();
+            checkRemoveBgStatus();
+            document.getElementById('settingsModal').classList.add('show');
+        }
+
+        async function saveRemoveBgKeys() {
+            const keys = document.getElementById('settingRemoveBgKeys').value.trim();
+            if (!keys) { showToast('الرجاء إدخال مفتاح واحد على الأقل', 'error'); return; }
+            try {
+                const res = await fetch('/api/removebg-keys', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keys })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast(`تم حفظ ${result.count} مفتاح ✅`);
+                    document.getElementById('settingRemoveBgKeys').value = '';
+                    checkRemoveBgStatus();
+                } else { showToast(result.error || 'فشل الحفظ', 'error'); }
+            } catch (e) { showToast('خطأ في الاتصال', 'error'); }
+        }
+
+        async function checkRemoveBgStatus() {
+            try {
+                const res = await fetch('/api/removebg-status');
+                const r = await res.json();
+                const el = document.getElementById('removeBgStatus');
+                if (r.totalAvailable > 0) {
+                    const list = (r.keys || []).map(k => `${k.provider}:${k.key}`).join(' • ');
+                    el.innerHTML = `✅ ${r.totalAvailable} مفتاح متاح (${r.fileCount} محفوظ + ${r.envCount} من البيئة) — التالي: ${r.nextIndex + 1}<br><span style="opacity:0.7; font-size:11px;">${list}</span>`;
+                    el.style.color = '#4CAF50';
+                } else {
+                    el.innerHTML = '⚠️ لا توجد مفاتيح — أضِف على الأقل مفتاح واحد';
+                    el.style.color = '#FF9800';
+                }
+            } catch (e) {}
+        }
+        
+        async function saveGeminiKeys() {
+            const keys = document.getElementById('settingGeminiKeys').value.trim();
+            if (!keys) {
+                showToast('الرجاء إدخال مفتاح واحد على الأقل', 'error');
+                return;
+            }
+            try {
+                const res = await fetch('/api/gemini-keys', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ keys: keys })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast(`تم حفظ ${result.count} مفتاح بنجاح ✅`);
+                    document.getElementById('settingGeminiKeys').value = '';
+                    checkGeminiStatus();
+                } else {
+                    showToast(result.error || 'فشل حفظ المفاتيح', 'error');
+                }
+            } catch (e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
+        }
+        
+        async function checkGeminiStatus() {
+            try {
+                const res = await fetch('/api/gemini-status');
+                const result = await res.json();
+                const statusEl = document.getElementById('geminiStatus');
+                if (result.count > 0) {
+                    statusEl.innerHTML = `✅ ${result.count} مفتاح متاح | المفتاح الحالي: ${result.currentIndex + 1}`;
+                    statusEl.style.color = '#4CAF50';
+                } else {
+                    statusEl.innerHTML = '⚠️ لا توجد مفاتيح محفوظة';
+                    statusEl.style.color = '#FF9800';
+                }
+            } catch (e) {
+                console.log('Status check failed');
+            }
+        }
+
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+
+        function saveSettings() {
+            settings.seasonOffer = document.getElementById('settingSeasonOffer').value;
+            settings.seasonOfferEnabled = document.getElementById('settingSeasonOfferEnabled').checked;
+            settings.prefix = document.getElementById('settingPrefix').value;
+            settings.salePrice = document.getElementById('settingSalePrice').value;
+            settings.dollarRate = parseFloat(document.getElementById('settingDollarRate').value) || 0;
+            settings.linkText = document.getElementById('settingLinkText').value;
+            settings.couponText = document.getElementById('settingCouponText').value;
+            settings.footer = document.getElementById('settingFooter').value;
+            settings.botLink = document.getElementById('settingBotLink').value;
+            settings.hashtags = document.getElementById('settingHashtags').value;
+            settings.warning = document.getElementById('settingWarning').value;
+            settings.telegramToken = document.getElementById('settingBotToken').value;
+            settings.channelId = document.getElementById('settingChannelId').value;
+            settings.channelId2 = document.getElementById('settingChannelId2').value;
+            
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+            document.getElementById('warningText').textContent = settings.warning;
+
+            fetch('/api/settings/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prefix: settings.prefix,
+                    salePrice: settings.salePrice,
+                    linkText: settings.linkText,
+                    couponText: settings.couponText,
+                    footer: settings.footer,
+                    botLink: settings.botLink,
+                    hashtags: settings.hashtags,
+                    dollarRate: settings.dollarRate || 0
+                })
+            }).catch(() => {});
+
+            if (settings.telegramToken) {
+                const syncData = { botToken: settings.telegramToken };
+                fetch('/api/spy/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(syncData)
+                }).catch(() => {});
+            }
+
+            closeSettings();
+            showToast('تم حفظ الإعدادات');
+        }
+
+        let currentProductData = null;
+        const linkTypes = [
+            { key: 'coin', title: 'تخفيض العملات', icon: 'fa-coins' },
+            { key: 'point', title: 'رابط العملات', icon: 'fa-star' },
+            { key: 'super', title: 'السوبر ديلز', icon: 'fa-bolt' },
+            { key: 'limit', title: 'العرض المحدود', icon: 'fa-clock' },
+            { key: 'bundle', title: 'Bundle Deals', icon: 'fa-gift' }
+        ];
+
+        const urlInput = document.getElementById('urlInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const emptyState = document.getElementById('emptyState');
+        const productImage = document.getElementById('productImage');
+        const productTitle = document.getElementById('productTitle');
+        const productPrice = document.getElementById('productPrice');
+        const productOriginalPrice = document.getElementById('productOriginalPrice');
+        const productDiscount = document.getElementById('productDiscount');
+        const productInfo = document.getElementById('productInfo');
+        const linksContainer = document.getElementById('linksContainer');
+        const toast = document.getElementById('toast');
+        const linkSelect = document.getElementById('linkSelect');
+        const couponInput = document.getElementById('couponInput');
+        const publishBtn = document.getElementById('publishBtn');
+        const aiWriteBtn = document.getElementById('aiWriteBtn');
+        const aiPreview = document.getElementById('aiPreview');
+
+        aiWriteBtn.onclick = async () => {
+            if (!currentProductData) return showToast("يرجى البحث عن منتج أولاً");
+            aiWriteBtn.disabled = true;
+            aiWriteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التأليف...';
+            try {
+                const res = await fetch('/api/analyze-product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: currentProductData.title,
+                        price: currentProductData.price,
+                        category: 'general'
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.analysis) {
+                    const selectedLink = linkSelect.value || 'رابط المنتج';
+                    const coupon = couponInput.value;
+                    let text = `${settings.prefix} ${currentProductData.title}\n\n🔥 ${data.analysis.hook}\n\n${settings.salePrice} ${currentProductData.price}\n`;
+                    if (coupon) text += `${settings.couponText} ${coupon}\n`;
+                    text += `\n${settings.linkText} ${selectedLink}\n\n${settings.footer}\n\n${settings.hashtags}`;
+                    aiPreview.value = text;
+                    await navigator.clipboard.writeText(text);
+                    showToast("تم التأليف والنسخ! ✨");
+                }
+            } catch (err) { showToast("فشل التأليف"); }
+            finally { aiWriteBtn.disabled = false; aiWriteBtn.innerHTML = '<i class="fas fa-robot"></i> كاتب المحتوى الآلي (AI)'; }
+        };
+
+        searchBtn.onclick = search;
+        urlInput.onkeypress = (e) => { if (e.key === 'Enter') search(); };
+
+        async function search() {
+            const url = urlInput.value.trim();
+            if (!url) return showError('الرجاء إدخال الرابط');
+            errorMsg.classList.remove('show');
+            results.classList.remove('show');
+            emptyState.style.display = 'none';
+            loading.classList.add('show');
+            searchBtn.disabled = true;
+            try {
+                const response = await fetch('/api/affiliate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, credentials: {} })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showResults(data.data);
+                    document.getElementById('refineTitleBtn').style.display = 'flex';
+                }
+                else showError(data.error || 'حدث خطأ');
+            } catch (err) { showError('فشل الاتصال'); }
+            finally { loading.classList.remove('show'); searchBtn.disabled = false; }
+        }
+
+        const refineTitleBtn = document.getElementById('refineTitleBtn');
+        refineTitleBtn.addEventListener('click', async () => {
+            const currentTitle = productTitle.textContent;
+            if (!currentTitle) return;
+
+            refineTitleBtn.disabled = true;
+            refineTitleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحسين...';
+
+            try {
+                const response = await fetch('/api/ai-refine-title', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: currentTitle })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    productTitle.textContent = result.refinedTitle;
+                    showToast('تم تحسين العنوان بنجاح');
+                } else {
+                    showToast('فشل تحسين العنوان');
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال');
+            } finally {
+                refineTitleBtn.disabled = false;
+                refineTitleBtn.innerHTML = '<i class="fas fa-magic"></i> تحسين بالعامل الذكي';
+            }
+        });
+
+        function showResults(data) {
+            currentProductData = data;
+            productImage.src = data.image || '';
+            productTitle.textContent = data.title || '';
+            productPrice.textContent = `${data.price} ${data.currency || ''}`;
+            productOriginalPrice.textContent = data.original_price ? `${data.original_price} ${data.currency || ''}` : '';
+            productOriginalPrice.style.display = data.original_price ? 'block' : 'none';
+            productDiscount.textContent = data.discount ? `-${data.discount}%` : '';
+            productDiscount.style.display = data.discount ? 'inline-block' : 'none';
+            
+            linksContainer.innerHTML = '';
+            linkSelect.innerHTML = '<option value="">-- اختر الرابط --</option>';
+            linkTypes.forEach(type => {
+                const link = data.links[type.key];
+                if (link) {
+                    linkSelect.innerHTML += `<option value="${link}">${type.title}</option>`;
+                    linksContainer.innerHTML += `<div class="link-card">
+                        <div class="link-header"><span>${type.title}</span><i class="fas ${type.icon}"></i></div>
+                        <div class="link-text">${link}</div>
+                        <div class="link-actions">
+                            <button class="action-btn open-btn" onclick="window.open('${link}', '_blank')"><i class="fas fa-external-link-alt"></i> فتح</button>
+                            <button class="action-btn copy-btn" onclick="navigator.clipboard.writeText('${link}').then(() => showToast('تم النسخ'))"><i class="fas fa-copy"></i> نسخ</button>
+                            <button class="action-btn tele-btn" onclick="openTelePage('${link}')">صفحة النشر</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            results.classList.add('show');
+        }
+
+        function openTelePage(link) {
+            const params = new URLSearchParams({ title: currentProductData.title, image: currentProductData.image, price: currentProductData.price, link }).toString();
+            window.open('/telegram.html?' + params, '_blank');
+        }
+
+        function showError(msg) { errorMsg.textContent = msg; errorMsg.classList.add('show'); }
+        function showToast(msg) { toast.textContent = msg; toast.className = 'toast show'; setTimeout(() => toast.className = 'toast', 2500); }
+        linkSelect.onchange = () => { publishBtn.disabled = !linkSelect.value; document.getElementById('publishFbBtn').disabled = !linkSelect.value; };
+
+        publishBtn.onclick = async () => {
+            const link = linkSelect.value;
+            publishBtn.disabled = true;
+            try {
+                const res = await fetch('/api/publish-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: currentProductData.title,
+                        price: currentProductData.price,
+                        link: link,
+                        coupon: couponInput.value.trim() || null,
+                        image: currentProductData.image,
+                        settings: settings,
+                        credentials: { telegramToken: settings.telegramToken, channelId: settings.channelId, channelId2: settings.channelId2, channelChoice: document.getElementById('channelSelect').value }
+                    })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    try {
+                        const postData = {
+                            id: Date.now().toString(),
+                            title: currentProductData.title,
+                            price: currentProductData.price,
+                            link: link,
+                            coupon: couponInput.value.trim() || null,
+                            image: result.resolvedImage || currentProductData.image || null,
+                            message: document.getElementById('aiPreview')?.value || '',
+                            createdAt: new Date().toISOString()
+                        };
+                        const existing = JSON.parse(localStorage.getItem('affilidz_saved_posts') || '[]');
+                        existing.unshift(postData);
+                        localStorage.setItem('affilidz_saved_posts', JSON.stringify(existing));
+                    } catch(e) {}
+                }
+                showToast(result.success ? 'تم النشر! ✅' : 'فشل النشر');
+            } catch (e) { showToast('خطأ'); }
+            finally { publishBtn.disabled = false; }
+        };
+
+        async function publishToFacebook() {
+            const link = linkSelect.value;
+            const fbBtn = document.getElementById('publishFbBtn');
+            fbBtn.disabled = true;
+            fbBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري النشر...';
+            try {
+                const customMsg = document.getElementById('aiPreview').value.trim();
+                const res = await fetch('/api/publish-facebook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: currentProductData.title,
+                        price: currentProductData.price,
+                        link: link,
+                        coupon: couponInput.value.trim() || null,
+                        image: currentProductData.image,
+                        message: customMsg || null,
+                        settings: settings
+                    })
+                });
+                const result = await res.json();
+                showToast(result.success ? 'تم النشر على فيسبوك! ✅' : (result.error || 'فشل النشر'));
+            } catch (e) { showToast('خطأ في النشر على فيسبوك'); }
+            finally { fbBtn.disabled = false; fbBtn.innerHTML = '<i class="fab fa-facebook"></i> نشر على فيسبوك'; }
+        }
+        
+        // Frame upload handler - save to localStorage for persistence
+        document.getElementById('frameUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const frameBase64 = event.target.result;
+                localStorage.setItem('customFrame', frameBase64);
+                
+                const formData = new FormData();
+                formData.append('frame', file);
+                
+                try {
+                    const res = await fetch('/api/upload-frame', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        document.getElementById('currentFramePreview').src = frameBase64;
+                        showToast('تم تحميل الإطار بنجاح');
+                    } else {
+                        showToast('فشل تحميل الإطار');
+                    }
+                } catch (err) {
+                    showToast('خطأ في تحميل الإطار');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Restore frame from localStorage on page load
+        const savedFrame = localStorage.getItem('customFrame');
+        if (savedFrame) {
+            document.getElementById('currentFramePreview').src = savedFrame;
+            
+            // Re-upload to server if not exists
+            fetch('/custom_frame.jpg', { method: 'HEAD' })
+                .then(r => { if (!r.ok) throw new Error(); })
+                .catch(() => {
+                    fetch(savedFrame).then(r => r.blob()).then(blob => {
+                        const formData = new FormData();
+                        formData.append('frame', blob, 'frame.jpg');
+                        fetch('/api/upload-frame', { method: 'POST', body: formData });
+                    });
+                });
+        }
+        
+        // Logo upload handler
+        document.getElementById('logoUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const logoBase64 = event.target.result;
+                localStorage.setItem('channelLogo', logoBase64);
+                
+                const formData = new FormData();
+                formData.append('logo', file);
+                
+                try {
+                    const res = await fetch('/api/upload-logo', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        document.getElementById('currentLogoPreview').src = logoBase64;
+                        document.getElementById('currentLogoPreview').style.opacity = '1';
+                        showToast('تم تحميل اللوقو بنجاح');
+                    } else {
+                        showToast('فشل تحميل اللوقو');
+                    }
+                } catch (err) {
+                    showToast('خطأ في تحميل اللوقو');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Restore logo from localStorage on page load
+        const savedLogo = localStorage.getItem('channelLogo');
+        if (savedLogo) {
+            document.getElementById('currentLogoPreview').src = savedLogo;
+            document.getElementById('currentLogoPreview').style.opacity = '1';
+            
+            // Re-upload to server if not exists
+            fetch('/watermark_logo.png', { method: 'HEAD' })
+                .then(r => { if (!r.ok) throw new Error(); })
+                .catch(() => {
+                    fetch(savedLogo).then(r => r.blob()).then(blob => {
+                        const formData = new FormData();
+                        formData.append('logo', blob, 'logo.png');
+                        fetch('/api/upload-logo', { method: 'POST', body: formData });
+                    });
+                });
+        }
+        
+        // Logo position and size change handlers
+        document.getElementById('logoPosition').addEventListener('change', (e) => {
+            settings.watermarkPosition = e.target.value;
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+        });
+        document.getElementById('logoSize').addEventListener('change', (e) => {
+            settings.watermarkSize = e.target.value;
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+        });
+        
+        // Restore logo settings
+        if (settings.watermarkPosition) document.getElementById('logoPosition').value = settings.watermarkPosition;
+        if (settings.watermarkSize) document.getElementById('logoSize').value = settings.watermarkSize;
+
+        // إلغاء تسجيل أي service worker قديم (تم حذف sw.js)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+        }
+    </script>
+</body>
+</html>
