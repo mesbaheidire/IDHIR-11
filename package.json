@@ -1,7 +1,6 @@
 {
   "name": "aliexpress-affiliate-app",
   "version": "1.0.0",
-  "node": ">=20.0.0"
   "description": "AliExpress Affiliate Links Generator",
   "main": "server.js",
   "scripts": {
@@ -26,5 +25,7 @@
     "telegraf": "^4.16.3",
     "telegram": "^2.26.22",
     "xlsx": "^0.18.5"
-  }
+  }"engines": {
+  "node": ">=20.0.0"
+},
 }
